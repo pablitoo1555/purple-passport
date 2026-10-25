@@ -1,0 +1,1163 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Wildcats Trip Finder</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: phone-first single column (quiz card, then map, then top 10); at 900px+ the map and the top 10 sit side by side. */
+:root {
+  --bg: #f6f4f9;
+  --surface: #ffffff;
+  --ink: #1d1726;
+  --muted: #645d70;
+  --line: #e3deea;
+  --accent: #512888;
+  --accent-ink: #ffffff;
+  --accent-soft: #ece5f6;
+  --land: #e9e4f0;
+  --state-line: #d3cbdf;
+  --c-weather: #d9940f;
+  --c-nightlife: #c43d6e;
+  --c-outdoors: #2e8a57;
+  --c-sports: #2f66c8;
+  --c-logistics: #6c7787;
+  --g-a: #512888;
+  --g-b: #8a63c4;
+  --g-c: #bfa8e0;
+  --g-d: #cfcad7;
+  --g-text-a: #ffffff;
+  --g-text-c: #2a1e3c;
+  --shadow: 0 10px 30px rgba(37, 20, 66, 0.14);
+  --scrim: rgba(20, 12, 32, 0.38);
+  --ok: #1f8a7a;
+  --warn: #c2410c;
+  --weekend: #f1edf6;
+  --font-display: "Big Shoulders Display", "Oswald", "Arial Narrow", Impact, sans-serif;
+  --font-body: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131017; --surface: #1c1822; --ink: #efebf5; --muted: #a59eb2; --line: #2f2938;
+    --accent: #b493f0; --accent-ink: #150e20; --accent-soft: #2a2238;
+    --land: #241f2d; --state-line: #3a3346;
+    --c-weather: #f0b53e; --c-nightlife: #ec6d98; --c-outdoors: #5cc188; --c-sports: #6f9cf0; --c-logistics: #9aa4b3;
+    --g-a: #b493f0; --g-b: #8564c4; --g-c: #5a4783; --g-d: #3d3846;
+    --g-text-a: #150e20; --g-text-c: #efebf5;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.5); --scrim: rgba(0, 0, 0, 0.55);
+    --ok: #4cc5b0; --warn: #f08a5d; --weekend: #241f2b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131017; --surface: #1c1822; --ink: #efebf5; --muted: #a59eb2; --line: #2f2938;
+  --accent: #b493f0; --accent-ink: #150e20; --accent-soft: #2a2238;
+  --land: #241f2d; --state-line: #3a3346;
+  --c-weather: #f0b53e; --c-nightlife: #ec6d98; --c-outdoors: #5cc188; --c-sports: #6f9cf0; --c-logistics: #9aa4b3;
+  --g-a: #b493f0; --g-b: #8564c4; --g-c: #5a4783; --g-d: #3d3846;
+  --g-text-a: #150e20; --g-text-c: #efebf5;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.5); --scrim: rgba(0, 0, 0, 0.55);
+    --ok: #4cc5b0; --warn: #f08a5d; --weekend: #241f2b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.app { max-width: 76rem; margin-inline: auto; padding-block: 20px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+.display { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.01em; line-height: 0.95; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+button { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible, a:focus-visible, .dot-hit:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 999px; padding: 12px 22px; font-weight: 600; cursor: pointer; background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn.small { padding: 8px 14px; font-size: 13px; }
+.linkish { background: none; border: 0; padding: 4px 0; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font-size: 14px; }
+
+/* Welcome */
+.welcome { display: grid; gap: 20px; max-width: 34rem; margin-inline: auto; padding-top: 4vh; }
+.welcome h1 { font-size: clamp(44px, 12vw, 76px); color: var(--accent); }
+.welcome p.lede { margin: 0; font-size: 17px; color: var(--ink); max-width: 32rem; }
+.welcome .steps { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.welcome .steps li { display: flex; gap: 12px; align-items: baseline; color: var(--muted); }
+.welcome .steps b { font-family: var(--font-display); font-size: 22px; color: var(--ink); min-width: 1.2em; }
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 600; font-size: 14px; }
+.field input { font: inherit; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); max-width: 20rem; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+/* Quiz */
+.quiz { max-width: 34rem; margin-inline: auto; display: grid; gap: 18px; padding-top: 2vh; }
+.progress { display: grid; gap: 8px; }
+.progress .track { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+.progress .track i { height: 6px; border-radius: 3px; background: var(--line); }
+.progress .track i.on { background: var(--accent); }
+.quiz h2 { font-size: clamp(34px, 9vw, 52px); }
+.choices { display: grid; gap: 12px; }
+.choice { text-align: left; border: 2px solid var(--line); background: var(--surface); border-radius: var(--r); padding: 20px 18px; cursor: pointer; display: grid; gap: 4px; transition: border-color .15s, transform .15s; }
+.choice:hover { border-color: var(--accent); }
+.choice:active { transform: scale(0.99); }
+.choice.picked { border-color: var(--accent); background: var(--accent-soft); }
+.choice .which { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; }
+.choice .label { font-size: 19px; font-weight: 600; line-height: 1.3; }
+.or { text-align: center; font-family: var(--font-display); font-size: 20px; color: var(--muted); margin: -4px 0; }
+
+/* Results */
+.results { display: grid; gap: 20px; }
+.res-head { display: grid; gap: 12px; }
+.res-head h1 { font-size: clamp(36px, 9vw, 60px); }
+.res-head h1 span { color: var(--accent); }
+.weights { display: grid; gap: 8px; }
+.wbar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; gap: 2px; background: var(--line); }
+.wbar span { display: block; height: 100%; }
+.wlegend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.wlegend b { color: var(--ink); font-weight: 600; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.tune { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 4px 16px; }
+.tune summary { cursor: pointer; font-weight: 600; padding: 10px 0; }
+.tune .sliders { display: grid; gap: 12px; padding: 4px 0 14px; }
+.slider { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) 3rem; align-items: center; gap: 10px; font-size: 14px; }
+.slider input { width: 100%; accent-color: var(--accent); }
+.slider output { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+.board { display: grid; gap: 20px; }
+@media (min-width: 900px) { .board { grid-template-columns: minmax(0, 1fr) 23rem; align-items: start; } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; min-width: 0; }
+.panel h2 { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: 24px; letter-spacing: 0.01em; }
+.panel .note { font-size: 13px; color: var(--muted); margin: 4px 0 12px; }
+.mapwrap { position: relative; }
+.mapwrap svg { width: 100%; height: auto; display: block; }
+.land { fill: var(--land); stroke: var(--state-line); stroke-width: 1; }
+.borders { fill: none; stroke: var(--state-line); stroke-width: 0.8; stroke-linejoin: round; }
+.dot { stroke: var(--surface); stroke-width: 2.5; transition: r .3s; }
+.dot.ga { fill: var(--g-a); } .dot.gb { fill: var(--g-b); } .dot.gc { fill: var(--g-c); } .dot.gd { fill: var(--g-d); }
+.dot.sel { stroke: var(--ink); stroke-width: 3.5; }
+.rank { font-family: var(--font-body); font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.rank.ta { fill: var(--g-text-a); } .rank.tc { fill: var(--g-text-c); }
+.dot-hit { fill: transparent; cursor: pointer; outline: none; }
+.home path { fill: var(--ink); }
+.home text { fill: var(--muted); font-size: 18px; font-weight: 700; font-family: var(--font-body); }
+.maplegend { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 12px; color: var(--muted); margin-top: 10px; align-items: center; }
+.maplegend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 5px; vertical-align: -2px; }
+
+.top10 { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.top10 li + li { border-top: 1px solid var(--line); }
+.item { width: 100%; text-align: left; background: none; border: 0; padding: 12px 4px; cursor: pointer; display: grid; grid-template-columns: 1.8rem minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; border-radius: 8px; }
+.item:hover { background: var(--accent-soft); }
+.item .num { font-family: var(--font-display); font-weight: 800; font-size: 24px; color: var(--muted); }
+.item .nm { font-weight: 600; min-width: 0; }
+.item .badge { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); vertical-align: 1px; white-space: nowrap; }
+.item .blocks { grid-column: 2 / 4; display: flex; height: 10px; gap: 2px; border-radius: 3px; overflow: hidden; background: var(--line); }
+.item .blocks span { height: 100%; }
+.grade { display: inline-flex; align-items: baseline; gap: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pill { font-family: var(--font-display); font-weight: 800; font-size: 20px; line-height: 1; min-width: 2.3rem; text-align: center; padding: 4px 6px 3px; border-radius: 8px; }
+.pill.ga { background: var(--g-a); color: var(--g-text-a); } .pill.gb { background: var(--g-b); color: var(--g-text-a); }
+.pill.gc { background: var(--g-c); color: var(--g-text-c); } .pill.gd { background: var(--g-d); color: var(--g-text-c); }
+.grade small { font-size: 12px; color: var(--muted); }
+
+/* Detail card (hover tooltip and bottom sheet share it) */
+.card { display: grid; gap: 12px; }
+.card .top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.card h3 { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: 28px; line-height: 1; }
+.card .vibe { color: var(--muted); font-size: 14px; margin: 2px 0 0; }
+.card .why { margin: 0; font-size: 14px; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); }
+.scores { display: grid; gap: 6px; }
+.score { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr) 1.5rem; gap: 8px; align-items: center; font-size: 13px; }
+.score .pips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+.score .pips i { height: 8px; border-radius: 2px; background: var(--line); }
+.score .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.facts { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 6px 12px; margin: 0; font-size: 13px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; }
+.tip { position: absolute; z-index: 5; width: min(22rem, 92%); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); padding: 14px; pointer-events: none; }
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 20; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; background: var(--surface); border-radius: 18px 18px 0 0; box-shadow: var(--shadow); max-height: 80vh; overflow: auto; padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+@media (min-width: 640px) { .sheet { left: 50%; right: auto; width: 30rem; transform: translateX(-50%); } }
+.sheet .grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 10px; }
+.sheet .close { position: absolute; top: 10px; right: max(12px, env(safe-area-inset-right, 0px)); border: 0; background: var(--accent-soft); color: var(--ink); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 18px; line-height: 1; }
+.sheet .card { padding-top: 6px; }
+.foot { font-size: 12px; color: var(--muted); max-width: 46rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .screen { animation: rise .35s ease-out both; }
+  @keyframes rise { from { opacity: .4; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+}
+/* Fall calendar strip: Sept 1 - Nov 30, 2027; lanes for best weeks, pricey weekends, and event/game markers */
+.cal { display: grid; gap: 6px; }
+.cal-track { position: relative; height: 40px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; }
+.cal-track .wk { position: absolute; top: 0; bottom: 0; background: var(--weekend); }
+.cal-track .mo { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line); }
+.cal-track .best { position: absolute; top: 4px; height: 9px; border-radius: 3px; background: var(--ok); }
+.cal-track .pricey { position: absolute; top: 15px; height: 9px; border-radius: 3px; background: repeating-linear-gradient(135deg, var(--warn) 0 3px, transparent 3px 5px); border: 1px solid var(--warn); }
+.cal-track .ev, .cal-track .gm { position: absolute; top: 27px; width: 9px; height: 9px; margin-left: -4.5px; }
+.cal-track .ev { border-radius: 50%; background: var(--c-sports); }
+.cal-track .gm { background: var(--accent); transform: rotate(45deg) scale(.9); }
+.cal-track .evspan { position: absolute; top: 30px; height: 3px; border-radius: 2px; background: var(--c-sports); opacity: .55; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.cal-months { display: grid; grid-template-columns: 30fr 31fr 30fr; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.cal-key { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; color: var(--muted); }
+.cal-key i { display: inline-block; width: 12px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: 0; }
+.cal-key i.k-best { background: var(--ok); }
+.cal-key i.k-pricey { background: repeating-linear-gradient(135deg, var(--warn) 0 3px, transparent 3px 5px); border: 1px solid var(--warn); }
+.cal-key i.k-ev { width: 8px; border-radius: 50%; background: var(--c-sports); }
+.cal-key i.k-wk { background: var(--weekend); border: 1px solid var(--line); }
+.cmp .cal-legend .cal-key { font-size: 12px; font-weight: 400; }
+.cal-key i.k-gm { width: 8px; background: var(--accent); transform: rotate(45deg) scale(.85); }
+.cal-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13px; }
+.cal-list li { display: grid; grid-template-columns: 12px 6.4rem minmax(0, 1fr); gap: 8px; align-items: baseline; }
+.cal-list li > i { width: 10px; height: 10px; border-radius: 3px; align-self: center; }
+.cal-list .t-best i { background: var(--ok); } .cal-list .t-pricey i { background: var(--warn); }
+.cal-list .t-ev i { background: var(--c-sports); border-radius: 50%; } .cal-list .t-gm i { background: var(--accent); transform: rotate(45deg) scale(.85); }
+.cal-list .dt { color: var(--muted); font-variant-numeric: tabular-nums; }
+.cal-list small { color: var(--muted); }
+.est { font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; margin-left: 4px; white-space: nowrap; }
+.card h4 { margin: 4px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.wx { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.wx th, .wx td { text-align: left; padding: 4px 6px 4px 0; border-bottom: 1px solid var(--line); }
+.wx th { font-weight: 600; color: var(--muted); font-size: 12px; }
+.hur { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.hur.high { border-color: var(--warn); color: var(--warn); }
+.hur.some { color: var(--ink); }
+.wxnote { font-size: 13px; color: var(--muted); margin: 0; }
+
+/* Stars, finalists, compare */
+.star { flex: none; display: inline-grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: none; cursor: pointer; color: var(--muted); }
+.star svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+.star[aria-pressed="true"] { color: var(--c-weather); }
+.star[aria-pressed="true"] svg { fill: currentColor; }
+.star:hover { background: var(--accent-soft); }
+.top10 li { display: flex; align-items: center; gap: 2px; }
+.top10 li .item { flex: 1; min-width: 0; }
+.card .top .right { display: flex; align-items: center; gap: 4px; }
+.finalists .flist { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 0; }
+.finalists .flist li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.finalists .flist li:first-child { border-top: 0; }
+.finalists .flist label { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; cursor: pointer; font-weight: 600; }
+.finalists .flist input { width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+.finalists .flist .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.finalists .empty { margin: 0; color: var(--muted); font-size: 14px; }
+.finalists .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 30; background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-size: 14px; font-weight: 600; box-shadow: var(--shadow); max-width: calc(100% - 32px); text-align: center; }
+.toast:empty { display: none; }
+.compare { display: grid; gap: 16px; }
+.cmp-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.cmp { display: grid; min-width: min-content; }
+.cmp > * { padding: 10px 12px; min-width: 0; font-size: 13px; overflow-wrap: anywhere; }
+.cmp .sec { grid-column: 1 / -1; padding: 8px 12px; background: var(--bg); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border-top: 1px solid var(--line); }
+.cmp .lab { grid-column: 1 / -1; padding: 8px 12px 0; font-size: 12px; font-weight: 600; color: var(--muted); }
+.cmp .cell { border-left: 1px solid var(--line); }
+.cmp .cell.c0 { border-left: 0; }
+.cmp .nm { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: 24px; line-height: 1; margin-bottom: 6px; }
+.cmp .best-of { outline: 2px solid var(--ok); outline-offset: -2px; border-radius: 6px; }
+.cmp ul { margin: 0; padding-left: 16px; display: grid; gap: 4px; }
+.cmp .cell.vtop { padding-top: 4px; }
+
+/* Print one-pager: only #print shows, always light */
+#print { display: none; }
+@media print {
+  :root, :root[data-theme="dark"], :root:not([data-theme="light"]) {
+    --bg: #ffffff; --surface: #ffffff; --ink: #1d1726; --muted: #5a5366; --line: #ddd7e5; --accent: #512888; --accent-ink: #ffffff; --accent-soft: #ece5f6;
+    --c-weather: #d9940f; --c-nightlife: #c43d6e; --c-outdoors: #2e8a57; --c-sports: #2f66c8; --c-logistics: #6c7787;
+    --g-a: #512888; --g-b: #8a63c4; --g-c: #bfa8e0; --g-d: #cfcad7; --g-text-a: #ffffff; --g-text-c: #2a1e3c;
+    --ok: #1f8a7a; --warn: #c2410c; --weekend: #f1edf6; color-scheme: light;
+  }
+  @page { size: letter; margin: 0.45in; }
+  body { background: #fff; font-size: 10px; }
+  body > :not(#print) { display: none !important; }
+  #print { display: block; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+.pr-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-bottom: 8px; }
+.pr-head h1 { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: 30px; line-height: 1; color: var(--accent); }
+.pr-head p { margin: 0; color: var(--muted); font-size: 10px; text-align: right; }
+.pr-pri { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 10px; color: var(--muted); margin-bottom: 8px; }
+.pr-pri b { color: var(--ink); }
+.pr-item { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) 15rem; gap: 4px 12px; padding: 7px 0; border-top: 1px solid var(--line); break-inside: avoid; }
+.pr-item .num { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-height: 1; color: var(--accent); }
+.pr-item h2 { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: 19px; line-height: 1; display: flex; gap: 8px; align-items: center; }
+.pr-item h2 .pill { font-size: 13px; padding: 2px 5px 1px; min-width: 0; }
+.pr-item .vibe { margin: 1px 0 3px; color: var(--muted); }
+.pr-item dl { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); gap: 1px 8px; margin: 0; }
+.pr-item dt { color: var(--muted); }
+.pr-item dd { margin: 0; }
+.pr-item .cal-track { height: 30px; }
+.pr-item .cal-track .evspan { top: 23px; }
+.pr-item .cal-track .best { top: 3px; height: 7px; } .pr-item .cal-track .pricey { top: 12px; height: 7px; } .pr-item .cal-track .ev, .pr-item .cal-track .gm { top: 21px; width: 7px; height: 7px; margin-left: -3.5px; }
+.pr-item .cal-months { font-size: 8px; }
+.pr-item .cal-list { font-size: 9px; gap: 1px; }
+.pr-item .cal-list li { grid-template-columns: 8px 4.4rem minmax(0, 1fr); gap: 5px; }
+.pr-item .cal-list li > i { width: 7px; height: 7px; }
+.pr-foot { margin-top: 8px; font-size: 8.5px; color: var(--muted); }
+.themebar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 8px; }
+.themebar .btn { gap: 6px; }
+.themebar svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 420px) { .slider { grid-template-columns: 7rem minmax(0, 1fr) 2.6rem; } .score { grid-template-columns: 7.5rem minmax(0, 1fr) 1.5rem; } .facts { grid-template-columns: 6.2rem minmax(0, 1fr); } }
+</style>
+
+<script>
+try { const t = localStorage.getItem('tripfinder-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<main class="app">
+  <div class="themebar">
+    <button class="btn ghost small" id="reset-btn" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Start over</button>
+    <button class="btn ghost small" id="theme-btn" type="button"></button>
+  </div>
+  <section class="welcome screen" id="welcome">
+    <p class="eyebrow">Fall 2027 guys trip</p>
+    <h1 class="display">Find your trip</h1>
+    <p class="lede">Answer 10 quick this-or-that questions. We'll turn them into your priorities and grade 30 destinations across the country for you.</p>
+    <ul class="steps">
+      <li><b>10</b> taps, about a minute</li>
+      <li><b>30</b> destinations graded A+ to D</li>
+      <li><b>1</b> one-page PDF for the group chat</li>
+    </ul>
+    <div class="field">
+      <label for="name-input">Your first name</label>
+      <input id="name-input" type="text" autocomplete="given-name" maxlength="24" placeholder="e.g. Paul">
+    </div>
+    <div class="row">
+      <button class="btn" id="start-btn" type="button">Start the questions</button>
+      <button class="btn ghost" id="skip-quiz-btn" type="button">Skip the quiz</button>
+      <button class="linkish" id="see-btn" type="button" hidden>See my last results</button>
+    </div>
+  </section>
+
+  <section class="quiz screen" id="quiz" hidden>
+    <div class="progress">
+      <p class="eyebrow" id="q-count">Question 1 of 10</p>
+      <div class="track" id="q-track"></div>
+    </div>
+    <h2 class="display" id="q-title">This or that</h2>
+    <div class="choices">
+      <button class="choice" id="opt-a" type="button"><span class="which">This</span><span class="label" id="opt-a-label"></span></button>
+      <div class="or" aria-hidden="true">or</div>
+      <button class="choice" id="opt-b" type="button"><span class="which">That</span><span class="label" id="opt-b-label"></span></button>
+    </div>
+    <div class="row" style="justify-content: space-between">
+      <button class="linkish" id="back-btn" type="button">Back</button>
+      <button class="linkish" id="skip-q-btn" type="button">Skip this one</button>
+    </div>
+  </section>
+
+  <section class="results screen" id="results" hidden>
+    <div class="res-head">
+      <p class="eyebrow">Your matches</p>
+      <h1 class="display" id="res-title">Your trip board</h1>
+      <div class="weights">
+        <div class="wbar" id="wbar" aria-hidden="true"></div>
+        <div class="wlegend" id="wlegend"></div>
+      </div>
+      <div class="row">
+        <button class="btn small ghost" id="retake-btn" type="button">Retake the questions</button>
+        <button class="btn small ghost" id="print-top-btn" type="button">Print / save PDF of top 5</button>
+      </div>
+      <p class="note" id="skipped-note" hidden style="margin:0;font-size:14px;color:var(--muted)">You skipped some or all of the questions, so those priorities are weighted evenly. Use “Fine-tune your priorities” to adjust.</p>
+      <details class="tune" id="tune">
+        <summary>Fine-tune your priorities</summary>
+        <div class="sliders" id="sliders"></div>
+        <button class="linkish" id="reset-tune" type="button">Reset to my answers</button>
+      </details>
+    </div>
+
+    <section class="panel finalists" aria-labelledby="fin-h">
+      <h2 id="fin-h">Finalists</h2>
+      <p class="note" id="fin-note">Star up to 5 places to build a shortlist for the group.</p>
+      <ul class="flist" id="flist"></ul>
+      <div class="actions" id="fin-actions">
+        <button class="btn small" id="compare-btn" type="button">Compare</button>
+        <button class="btn small ghost" id="copy-btn" type="button">Copy list for group chat</button>
+        <button class="btn small ghost" id="print-fin-btn" type="button">Print / save PDF</button>
+      </div>
+    </section>
+
+    <div class="board">
+      <div class="panel">
+        <h2>The map</h2>
+        <p class="note">Bigger, darker dots match you better. Numbers are your top 10. Tap a dot for details.</p>
+        <div class="mapwrap" id="mapwrap">
+          <svg id="map" viewBox="0 0 975 632" role="img" aria-label="Map of the United States with destination dots sized and shaded by how well they match you">
+            <path class="land" d="M647.9,492.4L651.8,491.5L652.9,491.7L648.9,492.6ZM780.1,466.0L780.5,468.4L781.5,471.0L782.7,475.6L787.0,486.2L789.6,491.1L794.9,499.6L801.3,507.5L804.6,510.9L806.0,513.6L805.0,514.9L804.9,517.2L806.6,521.8L811.5,529.2L815.4,536.8L818.0,540.6L820.0,544.3L822.1,549.0L822.8,554.1L823.1,565.0L823.9,570.5L823.8,574.5L822.6,572.9L821.8,573.7L820.8,579.5L821.7,581.2L820.6,583.0L820.9,583.6L822.3,582.6L823.9,577.8L823.7,580.2L821.9,584.9L821.5,586.5L817.9,591.7L816.1,593.0L819.1,589.3L819.7,586.0L817.6,586.0L815.1,586.8L813.6,588.0L812.1,587.3L810.5,588.6L806.9,589.7L804.6,587.7L804.7,585.2L805.2,585.0L803.8,582.3L800.6,577.8L799.3,577.9L798.4,576.1L796.5,575.8L793.1,574.2L791.9,575.3L788.8,570.5L787.5,566.0L785.4,563.2L781.9,561.4L781.3,562.6L780.2,559.2L779.1,558.4L781.0,558.5L781.3,555.3L780.3,553.5L780.3,551.9L778.5,553.1L779.5,555.9L777.5,556.8L772.6,550.7L769.3,545.7L766.4,542.8L766.0,541.7L767.0,541.0L769.7,535.5L771.1,533.2L770.5,531.8L768.9,531.6L769.6,533.8L767.9,533.4L768.3,532.7L767.5,530.8L764.6,529.8L764.2,531.7L766.2,532.2L767.3,534.2L766.7,536.7L764.7,537.1L762.5,534.8L761.8,533.4L761.9,530.3L760.6,526.0L761.2,525.9L762.1,529.4L762.7,529.4L761.9,527.3L762.6,525.7L763.6,520.6L763.5,517.1L762.9,514.8L761.2,511.5L761.9,510.1L760.1,508.2L758.8,505.0L755.0,504.8L754.0,506.0L752.9,503.1L751.2,502.8L749.9,500.0L746.0,498.3L745.3,494.9L742.7,494.0L740.3,490.6L739.2,489.9L734.1,487.9L732.1,486.7L729.6,487.7L727.4,487.4L727.4,488.1L725.7,489.6L726.4,492.1L724.3,491.6L722.7,492.3L716.2,497.3L715.6,496.0L714.3,497.7L711.8,498.0L713.0,499.6L714.2,499.8L718.1,497.6L718.6,497.7L713.6,500.7L709.9,499.1L707.4,499.8L705.7,496.1L706.2,494.9L707.0,498.7L708.1,498.2L708.0,496.6L705.7,493.6L704.0,493.3L701.5,491.4L699.6,490.6L695.8,488.3L693.2,487.3L688.8,486.2L685.9,485.7L680.6,485.8L675.1,486.9L670.6,488.3L667.9,488.6L663.7,490.0L657.5,491.8L655.1,491.9L658.9,490.8L659.0,490.2L655.9,487.8L655.2,486.0L655.6,484.8L654.8,482.2L653.3,481.7L651.9,485.8L652.0,488.8L651.5,490.1L649.0,488.9L646.4,489.4L644.4,490.7L642.4,490.0L639.6,490.5L636.1,489.7L633.0,490.5L629.1,492.3L628.5,490.7L627.5,491.3L628.3,492.3L626.6,493.5L626.2,495.1L624.7,495.4L622.9,496.0L620.9,498.3L621.2,499.1L619.2,498.9L618.4,499.8L618.9,501.1L621.1,500.7L620.8,501.8L621.9,502.7L623.7,502.2L623.9,499.6L625.5,498.5L625.7,497.6L627.9,498.4L626.8,499.1L628.2,501.2L629.2,500.9L629.9,499.3L631.0,499.7L630.8,500.7L629.1,501.7L630.5,502.2L628.0,502.9L629.7,504.7L628.0,504.1L627.3,505.2L627.3,507.1L625.4,505.6L625.3,507.4L622.8,507.7L624.1,509.0L622.5,509.6L623.5,510.8L624.9,511.0L626.2,513.3L630.1,513.0L631.6,514.7L632.4,513.8L634.2,515.8L634.8,517.2L636.0,516.5L636.5,517.3L634.9,517.7L635.9,518.3L634.6,519.0L633.9,520.4L634.1,521.7L632.5,521.2L631.8,519.8L628.7,523.5L630.5,519.1L631.2,518.6L630.3,517.2L629.8,518.9L628.6,519.0L627.0,517.2L624.5,516.5L623.8,515.7L619.7,515.3L619.0,515.6L615.7,518.6L612.5,521.1L611.4,519.8L611.6,518.9L609.8,516.2L608.8,517.9L608.9,516.4L608.1,515.4L607.2,516.7L604.9,516.6L605.1,517.7L602.6,520.5L601.1,521.5L600.9,522.7L597.8,519.7L595.2,519.7L594.4,519.1L591.5,518.5L590.3,517.4L591.6,516.0L593.5,518.0L594.6,518.3L594.2,516.3L591.7,514.2L590.2,515.3L589.6,514.7L590.4,513.3L589.6,512.6L587.6,513.7L586.2,512.3L585.6,510.1L583.7,510.1L584.2,507.8L581.9,507.6L579.1,508.5L580.0,505.9L578.8,505.8L574.4,508.1L572.8,507.9L574.7,511.0L576.1,510.5L576.0,511.5L573.7,511.8L570.5,513.0L564.7,512.0L562.2,511.3L558.1,509.4L553.5,508.2L547.7,508.4L542.4,509.2L540.6,510.3L537.4,510.6L534.8,511.4L525.0,516.0L523.1,517.9L522.4,517.4L524.2,515.5L525.7,515.1L526.3,514.2L527.7,514.3L526.7,513.3L522.8,514.4L522.0,514.3L523.4,512.1L523.6,509.1L522.4,508.6L521.3,509.2L520.2,511.1L518.3,510.5L517.4,512.1L517.3,513.8L519.5,515.1L519.9,519.4L518.7,519.8L515.8,522.5L514.7,522.1L514.9,524.3L517.7,522.2L521.5,518.3L523.1,518.8L517.3,523.0L513.1,526.7L510.3,529.5L509.1,529.6L501.7,534.1L496.4,536.5L491.9,539.1L489.1,541.9L485.3,544.0L480.2,548.3L477.8,551.1L475.0,555.4L471.7,561.9L470.4,566.2L469.9,570.1L470.1,574.1L471.5,580.1L473.4,587.2L474.1,592.2L471.7,581.8L470.0,581.5L471.3,581.0L469.7,576.0L469.4,573.9L469.5,568.9L470.4,563.5L471.6,560.1L473.0,557.2L475.4,553.5L476.2,550.9L477.5,550.2L480.3,546.1L482.1,544.8L483.2,544.7L486.0,542.4L489.2,541.3L488.9,539.6L485.5,541.8L484.3,541.9L483.8,539.9L482.4,539.9L481.8,542.5L481.9,544.0L479.2,546.2L477.4,545.6L477.2,544.8L473.6,547.0L475.1,547.7L477.4,546.5L476.9,548.5L474.1,552.9L472.8,551.7L468.7,551.7L468.3,552.9L470.2,552.6L470.4,554.7L472.7,555.8L471.3,558.6L469.3,564.2L467.4,565.2L467.3,563.3L464.9,565.9L466.7,566.3L469.1,565.7L468.6,571.8L467.8,575.8L469.1,583.2L469.7,583.2L471.7,587.9L471.1,588.8L471.4,591.7L474.3,592.7L474.4,595.1L471.7,595.1L469.7,596.1L469.7,597.6L466.6,596.5L464.0,593.4L461.8,593.1L460.9,592.5L457.5,592.6L455.3,592.2L453.8,592.6L451.7,592.0L447.4,588.5L444.9,587.8L443.2,588.1L440.1,585.0L438.7,585.3L437.2,584.3L434.3,583.6L434.7,582.4L433.1,581.0L432.5,576.8L431.4,574.1L429.2,571.9L429.3,571.1L427.9,569.9L428.4,566.5L428.2,564.8L427.1,564.3L427.0,562.7L427.6,559.4L426.6,559.1L427.0,557.6L425.2,555.8L423.2,555.4L421.9,553.7L419.8,552.0L418.9,547.9L417.7,547.5L416.0,544.1L413.6,542.9L412.0,540.7L411.0,538.0L410.2,533.8L408.2,532.0L408.2,530.2L406.5,526.5L405.9,526.4L405.1,521.7L403.3,520.2L403.0,518.5L398.9,515.5L398.0,513.4L396.3,512.9L395.9,512.0L394.2,511.4L393.2,508.7L392.3,508.4L391.4,506.3L390.3,505.7L385.7,505.8L382.9,504.7L380.5,504.4L377.7,504.6L376.5,503.3L373.4,502.6L372.4,504.9L370.3,504.3L366.4,505.4L366.2,506.5L363.7,509.8L362.7,513.5L362.0,513.5L361.0,517.2L359.3,517.5L358.9,518.5L357.1,519.9L356.7,521.5L353.4,521.3L352.5,520.4L350.6,519.8L348.2,517.0L345.0,515.9L342.9,513.8L340.3,513.1L337.1,510.9L335.0,507.7L333.6,507.5L329.9,503.6L329.6,501.4L327.7,497.7L327.4,494.8L328.1,491.9L326.9,489.0L325.1,486.9L324.8,482.7L323.4,481.7L322.9,479.9L321.8,479.8L321.0,478.4L319.1,476.9L318.2,476.9L315.7,475.3L315.8,474.6L313.0,472.0L312.3,469.8L309.2,467.5L307.6,464.6L306.2,462.7L303.8,461.7L301.6,459.9L298.9,453.5L296.2,452.0L279.2,450.0L264.2,448.2L262.9,458.3L246.8,456.2L228.6,453.6L208.1,450.4L171.7,429.4L142.3,411.7L142.9,408.9L145.0,407.0L99.4,401.6L99.7,399.5L98.9,397.9L97.9,398.1L98.8,393.5L99.0,390.3L98.7,387.7L96.5,382.2L94.5,379.2L93.3,378.5L92.4,376.4L90.2,374.4L87.9,370.9L86.4,369.8L86.1,370.6L84.6,370.8L82.1,369.2L82.9,367.1L82.6,364.7L81.6,362.4L80.8,361.9L77.6,361.3L76.3,361.7L69.7,356.7L69.3,354.1L66.5,350.5L65.0,349.2L62.2,348.9L59.3,347.9L57.1,346.1L54.8,345.2L48.8,344.2L48.5,342.4L46.4,340.4L47.8,338.2L47.6,336.6L48.6,334.8L47.9,333.2L49.5,329.9L49.7,328.1L47.8,327.1L45.9,324.5L47.3,321.2L46.9,320.0L45.2,319.3L43.4,314.6L41.5,313.2L41.4,310.6L39.7,307.7L39.7,305.0L38.6,304.2L38.2,301.8L37.1,299.6L35.7,298.3L34.8,296.1L35.0,292.1L35.6,290.5L35.1,289.9L36.2,288.9L36.6,289.8L38.1,288.9L39.6,285.9L39.1,282.7L38.2,281.3L37.3,281.6L35.1,281.0L33.7,279.2L31.4,274.2L32.5,270.6L32.4,267.7L31.5,266.5L32.9,263.0L33.2,260.8L35.2,260.6L35.3,262.5L34.5,264.6L34.7,265.7L36.2,266.6L38.4,270.1L38.5,265.0L37.7,262.7L36.4,261.6L37.3,260.4L37.2,259.0L36.2,258.6L35.8,257.2L39.2,256.2L38.9,254.7L37.6,253.4L35.7,253.7L35.0,255.6L35.6,256.6L34.3,257.6L34.2,259.8L33.2,259.9L31.6,257.4L30.7,257.4L29.3,254.5L27.6,253.2L26.2,253.4L28.2,250.2L28.4,247.8L27.2,246.6L27.5,245.3L27.0,243.0L24.4,239.5L23.2,235.5L20.9,231.8L20.1,228.9L21.5,226.9L21.1,221.5L21.4,219.4L23.6,215.7L24.0,212.6L23.6,211.6L24.0,209.1L22.2,204.2L21.5,201.9L20.4,200.9L18.4,197.1L19.1,196.0L18.9,193.0L21.4,189.5L24.7,186.0L26.6,183.7L27.7,181.6L27.2,180.9L27.7,178.9L29.1,177.2L31.2,172.8L31.6,170.4L31.6,165.8L30.4,164.4L31.9,162.3L32.5,159.9L31.0,156.6L31.1,153.4L31.9,149.2L33.6,146.4L33.8,144.5L32.7,142.3L32.8,139.9L35.4,136.8L38.4,131.3L42.6,125.8L45.3,120.6L48.0,114.4L49.6,109.9L52.6,102.6L53.7,98.8L54.6,97.5L57.1,92.4L58.5,87.9L61.1,81.4L61.1,79.0L61.9,77.5L62.1,75.0L63.5,73.9L63.9,71.5L63.7,68.9L64.9,70.5L67.4,70.2L67.9,70.9L70.9,70.2L69.1,69.5L68.5,68.5L65.8,69.1L64.2,66.8L62.9,67.6L64.1,65.1L65.5,59.8L65.9,61.0L64.6,65.5L65.6,65.8L65.8,63.0L66.4,63.7L67.5,62.6L67.2,60.2L69.6,59.0L68.9,58.0L67.0,58.5L65.9,57.2L66.3,53.5L66.8,54.6L68.8,53.9L70.7,53.9L68.6,52.2L68.8,51.3L66.9,51.0L66.7,52.8L65.8,52.9L66.8,49.9L67.3,44.8L66.6,43.0L67.3,38.7L67.5,34.1L67.1,32.3L65.6,30.1L65.4,28.3L66.4,23.4L68.1,20.5L67.3,19.1L69.7,20.1L71.8,22.7L73.7,23.8L76.9,27.1L80.9,28.3L82.4,29.4L84.6,30.0L85.1,30.7L87.3,31.3L88.8,30.6L90.1,33.0L92.0,33.3L92.0,35.5L93.0,34.6L92.7,33.0L94.6,32.8L93.6,33.9L93.9,34.9L95.3,34.0L95.1,35.9L94.3,35.9L94.7,38.4L92.1,41.4L90.7,42.2L92.0,40.3L91.1,40.4L89.7,42.4L88.1,43.3L85.2,46.2L83.8,48.2L85.6,48.8L88.4,47.9L85.3,48.3L84.6,47.5L88.0,44.0L90.1,43.1L91.7,43.1L92.4,41.7L95.0,39.7L95.6,37.9L96.5,39.0L96.1,42.6L95.1,46.0L93.9,47.2L92.4,52.3L91.1,53.5L90.1,51.7L91.1,50.0L89.3,51.6L90.5,53.7L89.1,55.1L87.6,51.3L88.0,54.9L89.3,55.7L91.1,54.5L92.7,52.3L93.8,53.2L94.4,52.1L96.1,51.9L96.4,48.9L96.1,46.5L97.4,46.2L96.5,44.7L97.7,43.4L97.9,41.7L98.9,41.0L100.1,38.9L101.4,38.7L101.7,37.5L100.3,34.9L100.5,32.5L99.0,33.1L99.2,34.4L98.2,34.1L98.6,31.5L100.5,32.0L101.2,31.3L99.7,29.1L99.5,27.3L97.8,27.5L98.0,25.3L99.7,25.8L100.8,27.0L101.0,24.8L102.3,24.4L101.6,22.9L102.3,20.9L99.3,19.2L99.6,17.7L98.9,16.7L99.7,15.9L98.7,15.4L100.0,14.3L114.6,18.6L140.0,25.3L152.7,28.5L166.4,31.9L183.5,35.9L198.0,39.0L210.4,41.6L232.8,46.1L243.0,47.9L265.4,51.8L284.5,54.8L302.7,57.4L325.9,60.4L340.3,62.1L364.4,64.6L376.8,65.6L386.9,66.5L404.3,67.7L420.8,68.7L444.8,69.8L468.6,70.5L479.4,70.6L491.9,70.8L510.7,70.7L510.7,62.1L512.1,62.8L513.7,62.4L515.6,64.1L517.9,73.2L517.8,75.6L520.1,77.3L524.2,77.3L524.9,78.4L530.7,78.7L531.5,81.2L533.7,81.2L536.4,80.4L536.4,79.4L540.3,78.2L540.7,78.6L543.7,78.5L547.6,80.2L549.0,80.1L547.9,82L548.8,82.5L551.1,82.2L551.7,84.3L553.4,87.2L554.8,86.5L554.2,85.0L554.9,84.1L558.0,83.9L558.8,86.0L561.1,87.2L563.3,87.3L564.6,89.5L565.8,89.2L565.8,90.7L567.9,90.5L570.6,89.5L574.6,86.3L576.6,85.7L578.0,88.8L580.7,88.1L581.1,88.7L587.6,87.9L589.3,88.4L590.2,90.0L591.7,90.5L593.6,89.6L596.2,90.0L596.1,90.7L590.4,94.1L581.9,97.5L579.0,99.4L574.8,103.3L572.6,105.6L569.9,109.3L568.1,111.3L566.7,112.1L565.3,113.9L558.9,119.3L560.2,121.1L561.3,121.7L563.2,121.3L567.0,119.6L568.0,119.6L572.6,116.9L573.2,117.4L575.2,116.3L576.1,115.0L578.2,114.6L579.7,116.0L577.7,119.1L578.3,120.4L576.9,122.8L577.6,123.0L579.9,121.5L580.1,120.4L582.6,122.4L585.3,123.0L589.1,121.0L591.2,120.2L593.8,117.3L596.5,116.3L597.4,116.5L600.5,115.7L603.0,114.2L604.9,112.0L606.9,111.8L608.2,109.4L611.6,106.3L612.9,105.7L615.0,102.7L618.5,100.5L621.6,99.7L624.3,99.6L625.9,101.0L622.1,101.8L622.5,102.8L620.8,103.9L618.3,107.6L617.5,108.0L616.5,110.6L615.4,111.7L615.0,114.9L615.6,116.5L616.5,114.8L618.5,112.4L620.0,111.5L618.1,114.7L619.7,112.9L621.1,112.4L623.9,112.4L626.5,113.2L628.2,114.3L629.2,116.0L631.6,118.7L632.6,118.9L633.0,120.8L634.7,121.0L637.1,120.6L638.4,119.7L639.6,121L641.7,121.5L642.1,120.6L643.6,121.3L643.2,119.0L644.0,118.5L644.3,120.2L645.3,120.6L646.9,118.4L648.7,117.6L651.8,115.2L652.4,115.5L655.8,114.3L660.3,114.2L661.9,113.9L665.3,111.9L669.9,111.0L669.0,112.7L669.7,117.6L670.9,117.2L673.2,118.0L675.7,116.8L676.4,118.3L678.4,117.4L678.9,116.0L681.5,115.7L683.4,114.8L683.4,117.3L684.4,121.4L682.8,121.7L682.4,123.0L684.4,122.6L686.1,123.5L685.5,124.5L686.9,125.7L690.1,126.1L690.2,123.9L693.2,123.6L694.2,125.2L695.2,125.7L694.0,127.5L692.4,127.0L690.7,127.5L688.8,126.9L686.7,127.4L685.2,127.1L681.8,128.1L681.2,128.7L679.3,127.7L678.6,128.2L678.0,126.8L676.4,126.5L676.2,128.4L675.4,129.1L676.3,131.1L674.2,130.9L671.1,128.2L668.0,127.7L665.7,126.9L662.8,127.2L660.9,130.3L657.3,130.7L657.0,131.7L654.8,131.0L652.5,131.2L650.7,132.7L650.3,135.4L648.0,136.5L646.4,138.8L646.7,140.0L645.2,139.1L646.1,136.0L646.9,136.0L647.5,134.3L646.6,133.3L645.7,134.9L643.5,134.5L643.8,135.6L643.0,137.7L640.7,138.3L640.4,135.9L639.3,136.0L639.5,138.3L637.8,139.6L634.0,148.8L632.0,152.2L632.4,153.0L632,155.7L629.0,156.5L629.0,157.9L626.8,162.0L626.8,164.5L626.1,165.6L628.0,166.1L628.3,165.0L630.6,163.3L631.0,161.5L632.5,158.8L635.7,157.0L636.2,155.1L637.6,152.8L637.8,150.8L639.6,150.1L639.7,148.6L641.6,147.6L641.7,149.4L641.0,149.3L641.0,152.3L639.9,153.1L639.0,155.2L639.0,157.4L637.5,159.1L636.9,161.5L635.4,165.1L634.6,170.4L635.3,173.6L633.4,175.5L632.4,180.7L633.2,183.2L633.3,185.2L632.3,187.6L632.1,190.3L631.3,191.9L630.8,195.3L631.9,199.2L631.7,200.9L632.5,202.1L633.1,204.6L634.1,205.6L633.5,209.6L634.1,212.3L633.9,216.7L634.7,218.8L637.1,222.0L638.8,227.2L640.3,229.8L642.1,231.1L644.9,231.4L647.2,230.6L651.9,227.5L655.0,224.1L656.7,218.8L658.6,215.5L659.8,210.2L659.9,204.7L658.8,198.0L657.8,195.3L655.5,191.4L652.3,184.2L653.7,180.1L652.9,176.7L651.8,174.8L653.1,173.3L655.1,167.9L655.4,162.8L654.7,161.0L654.9,159.7L657.1,158.6L657.1,154.9L658.4,154.7L659.1,153.2L661.1,153.5L661.8,151.1L662.8,150.0L663.5,147.8L664.9,147.9L663.7,149.1L664.7,150.6L663.9,155.9L665.0,157.2L665.7,154.3L665.1,154.3L666.3,152.0L666.1,155.2L665.2,157.3L666.1,157.5L667.7,153.2L667.7,148.9L667.2,145.5L669.6,143.2L672.4,142.8L674.1,141.9L674.0,141.2L672.0,141.1L670.4,138.3L672.8,134.4L671.6,133.8L675.0,133.7L675.3,132.7L680.6,135.2L682.6,134.6L684.5,135.1L686.1,136.5L686.6,137.8L689.8,137.8L691.6,139.1L692.9,139.1L695.1,140.2L696.7,139.9L698.8,141.6L698.3,142.2L700.2,144.6L701.2,146.9L699.1,146.1L698.3,147.1L698.7,148.9L700.9,150.2L702.1,153.9L701.8,156.7L702.3,162.4L701.0,164.2L699.7,164.3L699.2,165.5L699.1,169.4L697.7,170.0L697.8,171.0L695.4,171.4L694.3,173.2L694.1,177.1L695.0,178.7L698.9,180.1L700.8,177.2L701.9,176.5L701.4,175.6L702.1,172.9L702.5,173.9L704.6,170.6L707.9,169.1L709.8,167.6L713.0,169.0L715.2,172.4L716.4,177.4L717.9,181.0L718.9,185.8L719.9,188.5L721.5,191.1L721.0,192.4L721.3,196.1L720.9,199.8L718.5,202.1L717.8,200.4L719.0,198.6L717.7,198.3L716.2,199.3L716.7,201.3L715.4,202.5L715.7,204.1L715.1,206.5L712.9,207.5L712.1,209.5L712.5,212.9L711.6,213.5L711.8,214.9L709.8,217.0L708.2,220.4L708.2,221.7L709.7,222.5L710.4,222.1L712.2,223.2L715.1,223.9L717.6,225.4L719.0,223.5L723.1,226.6L725.5,227.4L727.4,226.1L729.2,225.6L732.9,223.2L734.3,223.6L737.5,223.2L739.7,221.2L741.9,218.2L744.2,215.8L744.8,215.7L748.4,213.0L750.2,212.4L756.1,208.9L759.0,207.1L761.6,204.8L762.0,203.5L763.0,203.9L767.5,200.2L769.2,198.8L772.3,195.7L773.3,194.1L776.4,192.1L777.5,188.7L780.3,186.0L779.9,184.7L778.3,182.4L776.9,182.0L776.6,180.2L775.5,180.1L775.7,178.5L774.8,175.9L781.5,172.5L783.7,171.7L792.0,170.2L795.7,170.3L799.7,171.9L801.9,170.5L806.3,169.3L809.0,169.2L812.7,166.7L813.5,164.9L816.5,161.7L819.3,161.0L819.3,158.2L818.1,154.9L816.8,154.3L817.2,153.2L818.2,153.5L819.3,152.4L817.6,151.0L814.7,150.3L814.5,148.7L814.9,146.4L817.1,144.9L816.9,144.0L820.4,141.2L821.6,139.5L822.0,137.5L825.2,132.4L828.6,127.9L831.0,125.8L832.2,124.3L834.4,123.1L836.7,122.9L845.1,121.2L857.5,117.8L865.2,115.7L873.6,113.9L886.1,110.5L885.8,109.2L886.6,107.6L886.6,105.2L887.8,103.2L888.9,104.2L890.5,103.9L890.8,102.3L891.7,101.1L893.4,101.5L894.8,103.1L895.0,101.3L894.2,99.2L895.2,98.3L897.3,98.8L895.2,96.3L895.8,93.9L896.8,92.2L899.0,90.0L898.1,88.8L900.0,86.1L899.9,84.9L898.1,82.5L898.7,80.4L897.6,79.7L898.1,76.3L899.9,73.8L899.0,67.4L905.9,47.6L908.7,47.5L909.9,51.4L912.4,52.2L916.5,48.5L919.5,47.6L919.6,45.8L922.6,45.8L923.0,46.3L926.4,47.7L928.1,49.4L929.7,49.7L937.2,74.0L937.3,75.4L938.4,76.5L937.9,77.1L938.7,79.8L940.1,79.4L941.5,80.5L943.9,80.4L944.5,79.8L945.7,81.8L944.5,82.5L946.2,84.3L946.1,86.9L948.2,89.2L949.4,89.6L949.7,88.1L951.9,88.0L953.6,89.7L955.2,92.1L956.3,92.6L957.0,94.7L955.0,99.3L953.8,100.2L952.7,98.6L951.4,99.6L952.4,100.5L950.9,102.7L949.6,103.0L951.0,104.1L950.2,105.5L948.5,103.9L947.4,105.2L946.7,104.2L946.2,107.4L943.9,108.3L943.8,110.3L942.5,109.1L941.4,109.7L941.9,110.9L941.4,112.5L942.2,112.9L940.3,113.8L938.9,113.6L937.4,111.9L938.6,110.4L937.2,109.7L935.4,111.3L937.1,114.9L936.2,116.7L937.2,118.4L936.5,120.2L935.7,117.5L933.9,115.8L934.5,114.6L932.8,113.6L931.9,114.3L931.0,110.0L930.3,112.0L929.5,111.5L928.5,112.6L929.7,113.9L929.2,115.5L929.2,120.4L930.3,121.8L930.1,122.8L928.6,123.2L928.3,124.7L927.0,124.7L925.7,125.6L925.7,124.3L924.3,127.7L923.4,126.9L922.9,128.7L921.4,128.9L921.0,130.9L919.6,132.2L919.0,130.7L918.0,130.9L917.3,132.7L915.1,134.0L914.5,135.3L915.1,136.8L912.7,138.3L913.3,140.3L912.9,142.2L911.1,143.3L911.2,146.0L910.6,149.7L910.1,150.1L909.4,153.1L909.4,154.7L911.1,158.5L912.8,159.0L914.3,158.4L913.3,160.2L910.5,162.1L911.2,162.6L909.4,165.7L910.4,166.8L909.5,167.1L910.0,168.5L911.8,167.4L913.9,168.2L917.0,171.2L917.4,174.1L919.4,174.3L920.2,176.8L921.7,177.7L924.8,177.4L928.8,175.1L927.8,172.0L927.2,172.8L926.1,170.0L926.7,169.7L928.4,171.3L930.1,174.2L930.9,176.7L930.6,179.7L930.4,177.8L929.6,177.6L926.2,179.6L924.6,179.8L923.2,180.9L922.6,182.4L920.4,183.3L918.4,186.0L920.0,183.3L919.1,180.3L917.8,179.3L917.6,181.6L915.4,182.7L915.4,185.2L912.7,186.3L911.8,187.5L910.4,183.9L910.1,184.2L910.9,187.2L909.0,188.2L909.5,184.3L910.5,182.7L909.8,182.1L909.2,184.0L908.7,182.6L906.7,181.2L907.6,185.5L906.9,185.9L908.0,188.2L907.6,190.7L905.3,191.5L901.8,193.7L901.7,193.4L900.2,193.4L893.4,197.0L892.2,196.8L890.8,197.9L887.3,198.4L885.0,199.4L884.7,198.3L883.4,200.8L881.8,202.6L880.9,202.3L879.8,203.7L878.1,204.5L878.1,205.6L876.4,206.2L874.0,208.3L872.7,210.3L873.0,213.0L873.7,211.0L877.0,209.1L877.1,208.4L881.5,208.3L882.6,206.6L888.7,205.1L890.9,204.2L893.1,202.0L894.6,199.5L896.4,198.7L895.5,200.5L896.7,201.3L898.3,200.6L899.5,201.7L903.0,198.9L903.0,199.4L895.5,205.8L889.9,209.6L885.7,212.9L883.3,214.3L881.4,214.8L877.8,216.8L874.1,217.5L871.6,219.2L870.3,218.8L869.1,216.3L868.9,217.1L869.5,218.3L868.4,220.3L866.5,221.4L866.7,222.2L868.9,221.9L871.4,222.4L872.3,224.8L872.4,228.9L873.1,237.2L871.2,244.5L869.9,247.4L868.3,248.9L867.1,250.8L865.3,257.1L864.4,258.6L862.5,259.0L862.9,253.8L860.2,253.1L858.5,254.2L857.5,253.0L855.4,252.4L851.7,249.7L850.4,249.5L850.2,246.8L849.3,246.3L849.1,245.8L849.7,244.3L848.6,245.4L848.4,246.7L849.4,247.3L849.3,249.3L851.7,251.9L852.7,252.4L854.0,254.7L854.7,258.0L856.4,259.2L856.8,260.6L859.5,262.8L861.2,262.6L863.7,270.2L862.9,278.7L862.5,280.4L861.3,284.3L859.8,284.7L858.3,288.2L858.0,291.2L858.5,292.1L857.5,294.7L858.1,294.9L857.3,297.8L856.4,298.9L856.5,301.3L855.6,303.1L854.5,303.5L852.6,300.6L852.4,298.9L852.8,292.0L854.0,288.5L855.5,285.8L854.1,285.2L855.4,283.8L853.3,283.7L851.6,285.2L851.2,281.8L851.8,280.3L849.9,281.2L849.6,279.5L851.1,278.6L849.6,277.7L850.1,275.3L849.3,276.0L848.8,278.3L847.9,277.1L847.6,275.5L847.2,277.3L847.6,278.7L845.5,279.1L844.0,277.6L841.3,274.1L842.5,273.6L841.8,271.3L846.3,271.3L845.0,270.2L842.8,269.6L841.6,268.3L840.0,267.8L840.7,265.8L842.2,266.0L841.0,263.6L839.0,266.2L838.8,264.2L839.3,261.7L840.0,262.9L841.4,262.8L841.8,259.9L840.3,260.3L839.2,259.2L840.2,254.7L842.2,253.0L842.5,248.9L840.5,249.8L840.3,250.8L841.5,251.7L839.2,254.4L838.3,252.3L838.1,254.3L836.7,254.0L837.6,257.0L836.2,258.7L833.4,257.7L834.7,259.1L836.7,260.1L836.9,261.9L837.9,262.7L836.7,263.8L837.3,265.2L836.2,268.7L837.0,269.6L838.1,273.9L840.9,276.6L840.3,279.0L841.3,279.5L843.3,282.0L843.7,284.1L841.7,283.1L841.1,281.9L840.7,283.3L838.2,281.2L834.6,281.5L833.0,279.0L833.7,281.2L831.0,279.6L829.8,277.6L826.9,280.1L826.1,279.8L825.2,277.6L825.5,275.9L827.0,273.7L825.2,275.1L824.5,278.6L825.8,280.9L827.8,280.3L829.6,278.7L830.2,280.6L831.8,282.6L834.2,283.3L838.1,282.8L840.4,285.2L845.9,287.3L845.0,289.2L846.1,293.1L845.0,294.0L842.8,293.1L842.3,293.8L840.4,291.2L838.1,290.4L834.8,287.6L833.9,287.8L836.0,289.1L837.7,291.1L839.9,291.9L842.1,294.5L846.3,294.8L845.5,296.0L846.9,296.0L848.1,298.5L848.0,300.4L845.1,298.8L844.7,299.7L846.8,301.5L844.4,302.5L846.3,302.7L846.5,304.2L847.3,303.8L849.1,305.4L848.9,307.4L847.2,308.7L846.0,307.4L842.8,305.9L841.8,303.7L840.1,304.8L837.7,303.6L836.5,304.6L839.3,304.8L841.0,305.6L841.3,304.4L842.7,307.9L843.8,307.8L845.9,309.2L846.3,310.4L849.2,310.1L848.7,308.4L853.0,308.7L854.8,308.3L856.3,311.5L858.8,315.9L860.5,320.0L863.5,325.1L868.4,331.7L867.8,331.5L865.5,328.4L863.9,327.6L862.6,324.4L859.7,318.8L858.5,317.5L855.9,317.4L858.7,320.3L862.0,325.4L860.8,325.4L859.3,322.9L857.9,324.6L855.3,322.8L854.3,322.7L857.3,325.6L854.7,327.4L850.1,326.3L851.8,327.4L853.3,327.6L851.4,328.5L850.8,329.9L848.7,330.7L846.8,330.3L845.5,328.1L845.4,325.1L845.0,328.2L847.0,331.4L847.3,332.7L849.9,331.9L852.0,330.6L852.9,331.4L855.9,329.5L858.0,329.1L859.0,329.7L858.6,332.2L859.8,336.5L860.4,336.1L859.9,330.9L860.2,329.5L861.8,328.7L863.2,329.3L864.8,331.9L865.6,334.5L865.1,337.3L863.0,337.9L861.6,340.4L861.4,342.0L859.7,344.3L853.3,344.6L852.2,343.9L850.9,341.9L852.8,341.4L853.0,340.5L850.0,342.1L851.6,344.6L849.1,344.2L848.2,344.6L844.7,344.0L843.0,343.4L844.4,344.9L845.8,344.7L850.2,345.9L853.3,345.8L854.2,347.0L852.7,351.8L849.5,354.9L845.8,353.4L846.2,354.7L847.9,355.4L850.4,355.8L852.4,353.7L854.7,352.8L854.9,351.3L856.8,353.2L858.0,353.0L857.1,351.7L858.6,352.1L859.1,353.5L858.2,355.3L857.1,355.8L856.0,358.8L855.8,360.2L853.0,360.2L856.0,360.9L857.4,357.6L860.0,353.6L862.2,349.7L862.9,349.9L861.4,351.9L857.9,357.4L856.1,362.3L855.6,361.1L853.0,360.5L851.3,360.8L846.8,362.6L843.8,364.5L837.9,370.4L835.6,373.8L834.4,376.6L833.4,382.7L833.4,384.0L832.1,383.5L829.1,383.4L825.4,384.4L822.7,386.1L819.7,387.8L818.1,389.4L816.3,392.2L814.2,396.2L813.4,398.8L813.5,403.5L811.2,405.9L811.0,407.8L808.7,408.4L807.9,407.7L806.4,410.1L807.4,410.8L805.4,412.4L805,413.5L802.9,415.1L802.5,416.8L800.6,418.9L799.2,419.2L797,420.7L794.8,422.8L792.1,423.7L793.4,425.1L792.9,426.8L789.9,428.8L788.2,427.4L787.4,428.4L789.5,429.8L788.7,431.2L786.3,433.0L786.1,434.5L786.7,435.9L784.7,438.8L783.2,438.6L783.9,439.7L782.5,442.3L782.8,444.5L782.3,446.2L780.7,447.0L782.4,447.0L781.0,450.7L781.3,454.4L779.5,456.3L779.5,459.0L778.2,460.1L779.6,460.4L780.2,461.4L779.7,463.7ZM104.1,551.6L104.1,551.6L104.1,551.6ZM99.1,569.8L103.4,565.2L103.4,566.9L104.6,569.0L102.5,568.9L100.9,570.4ZM95.0,582.0L96.2,581.4L96.8,582.2ZM93.3,575.4L95.7,573.1L96.7,573.1L97.8,571.2L99.5,571.6L98.9,570.6L101.3,570.9L102.0,571.5L103.0,570.6L103.1,573.5L104.5,573.3L103.7,574.9L102.0,574.2L102.6,575.2L100.2,576.9L101.5,577.1L99.2,577.7L98.0,579.4L96.0,580.3L97.3,578.8L97.4,577.1L95.3,579.5L94.4,578.4L94.3,576.9ZM93.1,582.8L94.3,581.5L94.9,581.9ZM88.8,587.6L88.8,587.6L88.8,587.6ZM71.7,593.6L71.7,593.6L71.7,593.6ZM71.0,591.6L71.0,591.6L71.0,591.6ZM68.1,593.4L69.2,591.4L70.0,592.3ZM65.7,590.1L67.2,590.0L67.0,591.7L65.8,591.6ZM67.5,564.1L67.7,563.2L69.3,562.5L68.3,564.3ZM60.8,591.2L60.8,591.2L60.8,591.2ZM58.2,592.3L58.2,592.3L58.2,592.3ZM66.1,523.9L66.1,523.9L66.1,523.9ZM55.9,595.9L55.9,595.9L55.9,595.9ZM44.6,596.9L44.6,596.9L44.6,596.9ZM42.6,595.4L43.9,595.9L43.1,596.6ZM40.6,595.9L41.7,595.5L42.5,596.6L40.7,596.7ZM44.1,547.4L46.2,547.9L47.1,547.1L49.5,546.6L50.8,548.5L50.9,551.2L49.1,551.2L48.3,552.0L44.3,548.6ZM31.2,600.7L33.7,600.4L35.8,598.4L36.0,596.6L37.9,596.4L38.4,597.5L39.8,597.4L37.9,598.9L40.1,598.1L39.1,599.3L37.7,599.6L36.5,600.8L34.7,600.6L32.2,601.5ZM50.7,504.5L59.1,500.7L63.8,499.5L65.6,499.7L64.9,502.8L65.2,503.9L68.5,504.1L71.3,505.0L72.5,503.4L74.2,503.6L72.7,502.2L71.4,502.4L71.7,501.1L69.7,498.2L70.7,497.6L71.5,499.0L71.2,500.0L72.6,501.8L73.4,501.6L71.8,499.5L73.2,497.5L72.4,496.9L70.2,497.2L66.5,495.5L66.2,492.2L62.9,487.9L61.4,486.8L59.3,484.4L60.9,483.2L61.5,480.7L64.0,481.3L67.1,481.3L69.4,479.9L70.4,478.8L71.6,474.9L73.9,472.2L75.2,471.3L76.8,471.8L78.1,471.3L81.6,468.3L82.9,467.8L84.2,468.6L86.6,468.1L89.3,465.0L92.5,466.0L91.4,467.6L92.2,468.7L93.9,466.2L95.0,467.2L95.1,468.7L96.1,469.2L96.9,468.3L98.6,468.0L101.4,468.7L100.9,470.4L102.8,470.7L102.4,471.7L104.4,472.1L104.9,471.4L106.5,471.7L108.9,470.7L113.9,472.8L118.9,472.5L120.3,473.4L122.5,473.6L124.3,472.1L126.0,471.6L131.6,474.2L132.8,474.4L147.2,547.0L149.2,547.3L149.3,546.6L151.3,547.2L152.2,545.7L154.5,545.0L154.5,547.2L156.8,548.2L157.3,549.2L162.3,552.3L163.6,554.7L165.5,552.2L166.5,551.9L166.5,548.3L169.4,545.8L171.6,547.1L172.5,549.2L173.6,549.2L176.3,551.6L178.2,552.1L180.7,553.8L182.2,555.6L188.2,561.5L188.1,562.5L189.5,562.4L189.6,563.9L190.9,564.0L191.5,565.5L192.6,565.1L195.2,565.9L196.5,565.7L198.6,566.9L200.0,566.5L200.9,567.9L200.8,569.2L202.9,572.6L202.3,575.8L201.4,577.9L200.2,577.7L198.4,575.0L199.1,573.9L198.1,571.8L198.1,575.0L195.4,574.7L194.3,573.6L194.0,570.6L193.8,574.0L192.7,573.6L192.0,570.8L191.1,571.7L190.2,570.5L189.2,570.4L189.3,568.5L190.1,568.2L188.2,565.3L185.7,563.9L183.2,563.4L182.3,560.4L178.2,556.5L176.2,556.7L172.8,552.7L171.5,550.2L170.0,550.1L171.3,551.1L173.3,554.5L174.6,557.6L172.6,556.5L170.8,557.2L170.2,555.3L169.1,554.0L168.6,554.7L170.2,557.3L167.9,559.3L161.9,556.2L160.0,554.4L154.9,552.9L152.9,552.1L153.9,551.3L153.2,549.3L150.9,551.2L148.5,551.3L145.5,550.2L140.5,549.9L135.3,551.6L134.6,550.4L132.2,550.2L132.3,548.4L130.8,549.7L128.8,548.6L128.7,547.8L127.3,548.8L127.5,549.7L125.2,550.6L126.0,549.0L128.4,547.7L127.3,546.6L125.6,547.4L124.4,545.3L121.6,545.6L120.8,546.8L119.2,547.1L119.7,544.8L118.9,544.9L118.4,547.4L119.4,547.5L120.2,549.8L119.7,551.5L121.0,552.8L119.4,554.0L118.9,552.4L118.6,554.0L113.5,554.3L113.6,556.8L112.9,556.6L111,558.8L110.4,557.3L108.8,560.3L107.1,560.0L106.4,560.9L104.8,560.2L105.1,558.9L106.6,558.3L108.6,555.9L106.6,557.2L105.1,556.1L105.7,554.0L106.8,552.4L107.2,549.8L106.6,548.5L108.1,547.8L110.5,545.8L112.0,547.1L112.9,545.8L111.6,544.8L111.9,544.1L109.4,543.8L107.5,545.8L106.3,546.2L104.9,548.4L103.2,550.3L103.5,551.2L101.6,553.0L102.3,553.8L100.4,556.9L97.6,558.1L97.7,558.9L96.1,559.5L96.0,562.2L97.6,562.0L99.5,563.5L97.9,565.5L96.4,566.5L96.6,567.4L95.7,569.3L91.9,570.7L91.1,572.5L89.8,572.0L89.3,573.8L87.9,573.7L85.7,575.8L86.6,576.7L85.6,578.2L84.2,578.3L82.7,579.8L82.0,579.0L79.7,582.0L77.7,581.8L76.9,582.9L78.5,583.9L76.6,585.8L72.2,586.4L71.9,587.9L70.9,588.6L71.7,586.7L70.6,586.4L67.3,589.0L65.8,588.4L64.1,589.6L62.8,589.4L63.7,587.5L62.6,587.5L60.5,591.2L59.6,590.7L55.5,591.9L53.8,592.8L52.7,594.1L50.4,593.7L49.0,594.7L46.7,594.8L46.4,593.4L47.6,593L48.5,591.6L51.8,590.6L53.4,590.7L54.2,592.2L54.5,590.3L56.5,590.1L59.8,586.5L61.9,585.1L66.4,584.5L66.5,585.6L68.9,586.3L67.4,585.0L68.5,582.9L71.2,580.8L75.2,578.7L76.4,579.2L76.4,577.7L77.8,575.8L80.9,573.4L82.4,566.0L84.1,564.4L83.9,563.1L79.6,564.9L78.0,563.4L78.3,561.8L76.6,564.1L77.2,565.8L75.7,566.2L74.5,563.4L73.2,561.9L72.4,563.1L70.9,561.5L71.0,560.6L66.5,562.8L64.7,564.1L64.0,563.2L64.9,560.8L64.1,558.3L65.8,556.7L63.8,551.0L63.1,552.3L60.6,553.1L58.3,553.3L56.6,552.7L56.5,551.1L54.9,548.7L52.6,546.6L54.4,545.2L53.8,543.0L54.6,542.9L53.8,541.3L52.6,541.9L52.6,540.5L51.8,539.8L52.5,538.6L51.0,538.2L51.2,537.2L52.5,537.2L51.7,535.8L53.4,535.9L53.7,533.6L57.4,529.8L58.7,526.7L60.6,525.7L62.0,526.3L63.3,527.9L64.3,527.8L67.4,524.8L69.8,525.4L71.4,525.1L73.0,523.1L72.6,519.4L71.5,516.9L72.7,517.3L73.7,515.7L72.5,513.9L71.7,515.0L70.7,514.8L67.6,516.5L66.5,518.0L66.5,516.6L64.0,515.7L61.2,515.4L59.1,516.0L55.2,514.1L55.0,511.8L53.9,509.3L54.6,509.7L55.8,508.6L52.4,506.8ZM24.8,603.0L26.6,601.7L26.8,600.8L28.5,600.0L29.2,599.0L30.9,598.6L31.4,600.2L29.1,600.9L28.0,602.1ZM28.4,573.2L28.4,573.2L28.4,573.2ZM20.4,602.1L20.4,602.1L20.4,602.1ZM26.8,568.3L26.8,568.3L26.8,568.3ZM16.0,603.0L16.0,603.0L16.0,603.0ZM34.4,517.7L35.5,516.9L37.6,518.4L39.4,517.8L40.4,519.8L42.0,521.2L44.8,522.4L43.9,523.4L42.1,523.0L40.8,524.4L38.9,521.1L36.7,519.4L35.2,519.9L34.4,519.2ZM7.0,603.0L7.0,603.0L7.0,603.0ZM23.4,539.8L26.1,542.2L24.3,541.3ZM-0.0,602.2L2.0,602.7L5.0,604.1L2.8,604.0L0.3,603.0ZM-6.2,601.1L-4.6,601.4L-0.9,601.2L0.0,599.9L0.7,600.9L-0.1,602.2L-1.9,602.5ZM-10.1,599.3L-10.1,599.3L-10.1,599.3ZM-10.9,601.2L-10.9,601.2L-10.9,601.2ZM-15.0,601.4L-13.1,599.2L-12.0,599.4L-12.5,600.5L-11.1,600.7L-14.1,601.8ZM-18.1,599.6L-15.5,599.7L-15.3,600.4ZM-20.0,597.4L-18.7,597.6L-18.3,598.8L-19.3,599.1ZM-30.2,592.5L-30.2,592.5L-30.2,592.5ZM-35.1,593.3L-35.1,593.3L-35.1,593.3ZM-40.7,588.5L-38.0,588.2L-40.5,589.3ZM-55.8,576.5L-54.2,576.4L-54.4,577.7ZM-57.6,570.8L-56.6,570.7L-54.6,571.9L-53.9,573.7L-56.3,573.0ZM197.3,577.4L197.3,577.4L197.3,577.4ZM196.4,577.0L196.1,575.0L197.0,575.3L197.6,576.8ZM194.6,574.8L195.7,575.0L195.8,576.4ZM187.5,570.0L187.5,570.0L187.5,570.0ZM187.0,569.1L187.4,568.1L188.8,568.2L188.1,569.7ZM186.2,576.9L186.2,576.0L188.2,576.0L187.0,577.9ZM184.9,573.0L185.5,571.2L184.9,569.8L186.7,569.5L188.6,571.4L190.0,571.8L193.4,575.3L194.3,575.8L194.5,578.1L195.0,577.5L195.6,580.1L193.4,580.2L193.9,579.4L191.8,578.9L189.6,577.5L191.4,579.8L192.9,580.4L192.0,581.3L190.1,579.8L189.2,577.8L188.0,577.4L189.3,576.2L185.8,574.3ZM182.6,574.2L182.6,574.2L182.6,574.2ZM180.3,567.1L182.0,565.6L181.9,564.5L185.3,564.2L188.7,566.6L186.3,568.6L184.3,569.2L183.9,568.5L183.9,572.3L182.6,572.4ZM174.5,555.9L176.1,557.4L178.2,556.8L180.1,559.2L179.2,559.8L180.4,560.7L181.3,562.5L179.5,565.8L178.4,564.5L178.8,563.0L177.0,560.8L176.8,560.0ZM173.8,564.7L174.5,562.9L177.2,563.4L179.6,568.3L180.8,572.6L180.0,572.3L177.5,569.3L176.0,568.3L175.3,566.5L175.4,565.2ZM173.4,565.8L173.6,564.9L174.8,565.7L174.8,567.4L174.0,567.7ZM169.1,561.4L168.8,560.2L171.5,557.7L173.1,558.5L175.3,558.6L177.1,562.6L176.0,563.2L173.7,562.2L173.8,564.7L171.1,563.5ZM120.8,555.0L122.6,552.2L123.5,550.0L124.2,550.9L122.3,553.7ZM120.3,551.4L121.6,548.6L121.1,552.0ZM814.5,594.4L814.5,594.4L814.5,594.4ZM812.7,595.9L812.7,595.9L812.7,595.9ZM807.4,599.0L811.0,596.6L811.5,597.1L808.4,599.2ZM793.7,604.2L794.7,602.0L800.4,597.6L803.5,598.5L805.0,600.1L801.9,601.7L801.6,601.2L796.3,604.0L793.7,604.7ZM789.5,605.4L792.1,604.4L791.7,605.4ZM786.4,605.4L786.4,605.4L786.4,605.4ZM777.4,558.3L779.8,562.4L781.8,563.2L781.7,563.9L779.5,562.7L777.5,559.2ZM770.2,606.1L770.2,606.1L770.2,606.1ZM720.4,495.2L722.3,494.0L722.1,495.0ZM939.7,114.8L939.7,114.8L939.7,114.8ZM937.9,116.1L937.8,114.4L939.7,115.7L939.2,116.8ZM936.3,112.2L936.3,112.2L936.3,112.2ZM932.1,116.0L932.1,116.0L932.1,116.0ZM933.5,124.7L933.5,124.7L933.5,124.7ZM931.3,119.2L932.7,117.0L934.3,119.3L933.9,120.2L932.1,120.5ZM930.1,116.2L930.2,113.2L931.0,113.3L930.9,116.2ZM927.6,186.7L928.5,187.0L931.1,185.8L931.5,184.3L933.0,186.0L932.3,187.1L930.6,187.5ZM918.3,188.3L919.3,188.0L920.0,186.0L921.2,184.4L924.5,186.7L920.4,188.0L919.5,189.2ZM864.2,329.1L865.5,329.2L866.8,331.4ZM863.3,349.6L863.5,348.3L870.9,343.2L870.7,338.3L870.3,335.7L868.5,332.0L870.6,335.6L871.0,338.3L871.2,344.0L869.7,344.5L867.1,346.2ZM77.1,374.3L78.2,374.6L81.1,376.9L81.7,378.7L81.3,379.5L78.9,378.2L78.9,376.1ZM74.7,384.2L75.3,384.2L76.3,387.1L78.2,389.9L76.8,390.1L75.7,388.6ZM65.1,358.3L65.1,358.3L65.1,358.3ZM58.2,374.3L59.2,374.4L60.7,376.1L58.6,375.4ZM56.6,355.0L59.4,356.2L61.6,357.7L62.3,357.1L63.5,357.8L62.6,358.5L59.5,358.5L56.8,357.4ZM50.2,355.1L54.1,355.3L54.8,357.7L51.9,358.1ZM46.8,353.4L48.5,353.0L49.3,354.4ZM305.4,584.4L305.5,583.6L307.4,581.9L308.2,581.8L308.9,580.1L310.1,579.1L310.3,577.8L308.7,575.3L308.9,572.8L309.7,572.5L315.1,575.7L317.9,576.2L322.2,578.2L325.2,580.6L326.2,581.9L326.0,584.4L327.9,584.4L328.4,586.6L330.1,588.2L332.0,589.1L331.9,590.2L328.5,593.2L325.2,594.9L321.7,595.1L320.4,596.5L317.3,598.1L316.2,599.3L315.2,601.9L313.7,603.1L312.6,601.9L309.2,600.4L308.3,598.5L309.1,593.6L308.3,590.4L307.6,590.2L307.1,587.5ZM291.6,557.9L292.3,555.9L293.9,555.3L294.9,556.0L296.4,558.5L299.6,557.2L303.7,559.2L304.0,560.0L306.4,560.7L306.8,562.3L305.4,563.9L302.4,564.4L300.1,565.4L298.5,565.6L297.1,564.8L296.6,561.0L295.0,561.1L293.0,560.1ZM291.5,566.6L294.2,565.0L294.8,566.9L292,567.2ZM283.8,558.2L285.4,557.6L287.4,558.0L289.2,560.4L288.6,561.4L285.9,562.1L284.9,559.4ZM278.6,553.8L279.7,552.2L279.6,551.1L288.0,552.4L290.1,552.0L291.4,552.5L289.4,554.6L287.8,555.0L283.1,553.8L279.8,554.1ZM258.0,543.0L261.3,542.8L263.5,540.3L264.6,540.0L265.5,541.9L267.4,544.1L267.3,545.7L269.5,547.0L271.3,549.3L270.1,550.2L267.7,550.2L266.2,549.1L264.3,548.9L261.5,549.2L260.9,547.6L259.0,545.0ZM226.0,532.6L227.3,530.1L230.9,528.2L235.4,528.5L236.5,530.1L235.7,532.2L235.7,534.2L233.3,536.3L229.9,535.7L228.5,534.3L226.5,533.6ZM216.3,536.5L216.6,535.7L220.0,533.1L219.8,535.5L218.0,536.2L217.1,538.1ZM848.9,285.1L848.6,283.3L849.6,283.4L849.8,284.9ZM847.2,281.4L847.7,279.5L849.0,282.2ZM677.0,130.8L678.1,131.5L681.9,132.3L681.1,133.5L679.7,133.3ZM663.4,133.1L663.4,133.1L663.4,133.1ZM662.3,138.5L662.9,134.8L664.0,134.8L664.5,138.0L663.5,139.0ZM660.8,135.5L660.8,135.5L660.8,135.5ZM658.7,142.4L658.7,142.4L658.7,142.4ZM656.5,149.6L657.9,149.5L658.1,151.2ZM655.4,152.7L655.4,152.7L655.4,152.7ZM645.5,139.8L645.5,139.8L645.5,139.8ZM601.3,92.3L602.4,90.9L607.4,87.8L610.0,85.8L613.5,84.3L610.1,88.6L606.7,90.2L605.1,91.3L606.6,91.6L603.4,93.3ZM644.4,493.1L646.4,492.9L645.6,493.6ZM639.3,492.8L640.4,492.5L642.9,493.1ZM635.1,493.8L635.1,493.8L635.1,493.8ZM631.7,493.5L631.7,493.5L631.7,493.5ZM899.2,195.6L899.2,195.6L899.2,195.6ZM896.7,198.0L896.7,198.0L896.7,198.0ZM815.5,153.8L815.5,153.8L815.5,153.8ZM814.1,153.7L814.1,153.7L814.1,153.7ZM720.6,223.0L720.6,223.0L720.6,223.0ZM718.6,222.2L718.6,220.8L719.5,221.0ZM93.2,50.8L94.9,47.7L94.8,50.1L95.6,50.8L94.1,51.5ZM98.7,24.5L98.7,24.5L98.7,24.5ZM98.8,20.3L98.8,20.3L98.8,20.3ZM97.6,23.4L97.6,23.4L97.6,23.4ZM95.0,31.0L98.5,27.7L99.3,30.6L97.9,30.2L95.8,31.5L97.4,32.6L97.1,36.5L98.2,35.0L99.6,36.8L99.4,38.7L98.0,39.2L97.9,37.4L96.6,37.5L96.1,35.9L96.8,33.1L95.9,32.9ZM95.5,17.9L95.5,17.9L95.5,17.9ZM93.6,19.5L93.6,19.5L93.6,19.5ZM95.2,12.9L95.2,12.9L95.2,12.9ZM91.0,21.2L93.4,21.3L95.9,19.9L98.1,21.7L96.8,22.4L97.1,23.7L95.6,26.6L94.1,25.3L92.5,24.8L91.5,23.8ZM91.1,19.0L91.1,19.0L91.1,19.0ZM641.9,146.2L642.1,144.6L643.9,144.8L642.9,146.8ZM635.6,150.3L635.6,150.3L635.6,150.3ZM584.0,113.2L584.0,113.2L584.0,113.2ZM583.2,116.1L583.2,116.1L583.2,116.1ZM581.2,115.1L583.0,114.0L582.8,115.2ZM579.6,117.2L579.6,117.2L579.6,117.2ZM579.7,114.3L579.7,114.3L579.7,114.3ZM579.1,113.0L581.0,112.2L582.6,113.4L580.8,114.6ZM579.2,118.4L581.8,116.2L582.6,116.8L580.9,117.5L581.3,118.2L579.3,119.1ZM576.0,114.0L576.0,114.0L576.0,114.0ZM637.5,497.3L638.9,499.9L638.8,502.5L638.1,504.0L638.6,501.1L638.5,499.3ZM628.5,497.9L631.3,495.3L630.7,496.9L631.8,498.0ZM623.7,510.1L623.7,510.1L623.7,510.1ZM609.5,520.7L609.5,520.7L609.5,520.7ZM605.9,521.2L608.7,521.7L607.3,522.0ZM602.1,522.3L602.1,522.3L602.1,522.3ZM576.5,511.4L578.2,510.4L579.8,510.5L582.5,512.0L581.5,513.5L580.0,513.8L576.3,511.8ZM908.4,188.4L908.1,186.2L908.9,187.7ZM906.7,195.9L906.9,194.3L907.7,195.9Z"></path>
+            <path class="borders" d="M646.4,489.4L642.1,455.0L642.4,443.8L643.0,413.1L643.6,386.1L641.6,383.9L641.5,383.7L655.8,382.5L666.4,381.8L689.2,379.6L693.2,393.9L702.4,427.0L703.8,428.8L704.5,431.7L706.6,434.2L707.7,436.4L707.3,438.8L709.5,439.9L706.7,443.1L707.1,445.9L705.9,450.0L706.5,453.3L708.0,454.8L708.6,457.1L707.8,462.7L708.2,464.7L709.8,466.3L710.7,468.7L693.6,470.8L681.5,472.0L669.5,473.1L660.7,473.9L660.2,477.0L662.4,479.5L665.0,480.9L665.4,481.9L664.6,484.7L666.2,486.4L665.2,486.9L663.7,490.0M145.0,407.0L148.8,406.9L150.2,405.1L150.6,403.7L150.1,400.8L147.4,400.0L146.9,398.6L147.7,397.3L148.3,394.8L147.4,393.9L148.3,392.7L148.0,391.6L149.9,391.4L152.3,389.0L152.8,386.2L153.5,385.9L153.8,380.4L156.1,378.7L156.8,377.0L160.0,376.1L162.7,373.6L159.8,369.6L158.9,369.2L159.3,367.6L158.4,363.2L157.2,361.7L156.2,359.0L156.8,356.1L157.6,354.6L157.0,354.0L158.7,352.7L158.9,349.0L158.2,345.0L159.2,342.4L158.7,341.4L159.0,337.8L160.1,336.4L159.3,334.6L159.9,331.0L163.0,330.5L164.1,331.3L166.5,331.4L168.4,334.8L169.9,334.9L172.6,331.4L176.0,313.3L184.7,314.9L202.7,318.2L222.6,321.5L238.8,324.0L239.3,324.2L254.3,326.5L264.6,327.9L259.4,365.0L251.3,423.6L246.8,456.2M710.7,468.7L712.3,471.2L713.1,474.1L714.2,474.9L747.9,472.7L765.7,471.4L766.3,474.6L767.3,476.0L769.6,475.6L769.8,470.9L768.6,469.0L768.7,466.0L770.0,464.8L772.9,465.3L774.7,466.0L780.1,466.0M689.2,379.6L693.2,379.2L712.7,376.8L725.5,375.2L734.8,373.6L734.8,375.0L732.8,376.8L731.5,378.9L731.6,381.5L733.8,382.8L734.9,382.8L736.7,384.6L738.4,385.3L739.5,384.9L741.0,385.3L741.8,387.4L743.8,389.3L744.3,391.4L747.3,394.3L748.3,396.1L752.5,398.1L754.5,399.5L756.0,402.3L759.0,403.4L760.4,405.0L761.9,405.8L761.6,407.6L763.6,408.6L763.6,409.9L765.4,410.5L765.6,411.7L768.6,412.8L771.2,414.4L771.3,416.0L773.1,418.1L773.9,422.7L775.1,423.7L776.7,423.9L778.7,425.8L778.5,426.4L780.7,429.5L780.2,430.6L781.4,433.3L783.5,433.4L786.1,434.5M651.9,227.5L669.1,225.8L685.6,223.9L685.8,225.3L688.4,247.3L689.5,257.0L690.7,268.2L692.5,284.2L691.3,285.6L692.5,286.9L692.2,289.0L693.6,289.2L693.5,291.5L690.6,292.0L687.5,294.5L685.0,293.5L682.8,294.0L682.5,295.0L683.6,298.2L682.3,300.1L680.5,301.0L680.0,303.6L678.6,305.1L677.0,305.1L675.9,307.9L676.1,309.6L675.5,311.5L674.1,312.8L672.8,311.6L671.5,311.8L669.7,310.7L669.6,309.1L668.6,308.8L665.5,311.7L665.9,314.2L664.5,314.6L664.4,316.0L663.4,316.2L663.5,315.0L662.3,315.4L660.7,313.4L656.7,315.7L656.3,318.1L655.3,318.6L653.8,317.4L650.5,315.6L648.3,316.5L646.7,315.0L646.2,316.0L646.6,318.3L645.6,318.5L645.2,316.8L642.7,317.6L641.3,316.6L640.8,317.4L641.5,319.3L640.9,320.1L639.3,319.7L637.9,317.4L639.3,315.6L638.6,314.3L640.4,311.7L639.3,310.2L640.2,308.1L641.5,308.6L643.3,304.5L644.5,303.0L644.9,299.9L646.5,298.4L646.7,296.5L645.6,294.8L646.1,292.5L644.9,291.9L644.8,290.3L643.7,289.2L643.4,287.9L644.5,286.6L643.9,285.7L644.2,283.8L645.0,283.6L644.0,273.0L642.8,258.2L640.3,229.8M393.8,271.8L404.7,272.5L422.4,273.4L443.4,274.3L464.7,274.8L479.9,275.1L495.3,275.2L509.9,275.2L511.7,277.3L514.6,278.2L515.0,277.4L516.4,277.6L517.4,279.1L517.3,281.4L516.0,280.9L513.5,285.7L516.5,289.2L517.3,289.0L517.1,291.1L518.5,293.2L520.0,294.1L522.5,294.4L522.3,295.2L522.5,326.0L522.8,343.8L506.7,343.9L489.0,343.9L471.7,343.8L458.9,343.5L443.2,343.1L432.5,342.7L401.9,341.3L389.6,340.6M910.1,150.1L907.8,149.1L907.4,147.1L904.5,145.1L903.5,143.5L903.3,140.3L902.8,140.0L901.3,135.2L897.6,123.2L894.8,114.2L890.8,102.3M909.8,182.1L907.7,181.0L906.8,178.4L906.2,178.7L905.4,176.0L898.7,178.0L898.6,177.6L882.1,181.5L871.1,183.9L870.6,183.2L870.9,167.6L884.0,164.8L902.9,160.6L904.4,159.2L904.0,158.1L905.9,157.2L906.1,155.9L907.6,154.9L909.4,154.7M912.7,186.3L911.6,182.8L910.5,182.7M560.2,121.1L559.0,120.2L557.5,121.0L557.3,122.4L555.9,122.2L556.4,135.6L555.6,136.9L554.2,136.9L553.7,138.0L551.0,139.0L549.1,141.4L548.9,142.9L547.6,144.0L547.5,147.2L549.2,147.3L551.2,149.8L551.3,151.1L549.7,153.6L550.0,157.7L549.3,158.4L550.1,161.6L549.3,165.9L553.3,169.1L553.6,169.9L556.9,170.0L559.1,172.6L561.7,173.4L563.9,174.8L564.8,177.8L567.6,179.5L569.7,181.5L572.2,182.1L574.8,185.4L575.5,187.0L575.3,190.7L576.3,193.2L567.8,193.6L549.2,194.4L534.1,194.8L515.8,195.1L502.2,195.2L490.5,195.2L490.7,154.3L490.2,153L487.1,151.7L484.4,147.3L484.8,146.2L487.6,144.1L488.7,142.4L489.1,139.8L489.2,136.5L488.6,133.4L488.6,130.9L487.5,129.9L486.5,127.5L486.3,125.5L485.5,123.3L485.5,119.8L485.9,118.1L485.2,116.5L485.0,108.1L484.7,106.4L484.9,102.4L482.9,97.5L481.5,92.0L480.5,89.3L480.9,86.8L480.5,85.0L480.5,80.7L481.3,77.7L479.3,71.3L479.4,70.6M849.7,244.3L850.7,241.4L851.9,240.0L854.8,238.6L854.7,236.8L859.1,231.9L860.6,230.8L856.0,227.6L855.3,226.4L853.7,226.3L852.9,223.6L850.6,223.3L849.9,220.7L850.0,218.7L850.6,218.6L851.5,216.1L849.6,213.8L851.1,212.3L851.5,210.6L852.8,208.6L853.2,205.9L854.9,204.0L862.4,206.6L870.0,208.9L870.0,211.5L869.1,216.3M868.9,217.1L866.8,218.3L866.5,221.4M849.3,246.3L849.1,245.8M712.7,376.8L712.6,371.3L716.0,370.4L717.2,369.1L716.8,367.9L717.4,365.8L719.2,363.8L721.0,362.5L726.2,361.7L726.8,360.6L729.4,359.2L730.2,357.5L732.9,355.7L734.5,355.8L735.9,353.3L735.7,351.7L737.1,352.0L737.7,350.1L740.1,348.3L740.8,350.5L741.8,350.6L743.4,349.2L744.1,347.2L747.2,345.2L748.5,345.1L749.0,346.1L750.7,345.5L752.3,341.0L754.1,339.5L755.7,339.8L755.0,338.1L755.6,336.7L755.5,333.9L760.9,333.4L770.5,332.2L772.9,331.8L780.3,331.0L794.2,328.7L812.0,325.5L840.2,319.9L842.1,319.4L858.8,315.9M822.7,386.1L798.1,368.4L794.5,369.0L777.6,371.4L777.4,368.8L774.0,365.3L772.3,367.1L771.9,364.7L749.4,367.0L745.6,368.1L741.5,370.5L734.8,373.6M489.1,139.8L477.1,139.7L459.8,139.3L442.8,138.7L432.1,138.2L412.4,137.2L392.1,135.9L371.0,134.3L375.0,88.1L376.8,65.6M522.8,343.8L522.9,355.2L526.7,380.5L526.6,393.4L526.4,420.7L525.7,421.2L524.5,419.7L522.1,419.6L520.9,418.1L519.5,418.4L518.2,417.4L517.3,415.7L515.8,415.6L514.2,414.0L512.4,413.4L511.4,415.3L509.1,415.6L506.5,415.3L506.2,414.1L500.9,416.3L499.2,415.2L497.6,416.2L496.1,416.1L494.7,416.8L493.8,418.4L492.8,417.9L491.5,419.7L490.1,417.7L488.6,417.8L488.1,416.7L486.2,416.0L487.0,415.1L485.3,414.6L485.1,416.0L483.7,416.6L483.1,415.5L481.5,415.5L481.1,413.7L479.4,413.7L479.5,415.1L477.6,416.9L477.4,418.7L476.0,418.5L475.4,417.0L476.1,416.1L475.3,414.4L474.5,415.6L473.0,415.3L472.3,416.5L470.6,416.0L470.7,414.6L468.1,414.3L468.3,413.4L466.5,412.6L465.9,413.5L463.1,415.7L460.9,414.6L461.6,412.5L459.0,412.1L458.4,408.6L457.5,409.5L453.9,408.5L452.9,410.1L451.6,410.6L450.0,408.5L448.6,408.2L446.6,409.0L442.5,406.8L441.3,407.2L438.6,406.7L438.3,403.9L435.2,401.0L434.9,402.8L431.5,401.8L431.1,402.8L429.3,402.6L425.8,398.5L423.9,398.2L425.7,353.9L415.9,353.4L396.4,352.4L371.6,350.7L372.4,339.3M767.5,200.2L768.5,206.3L783.1,203.8L800.3,200.5L824.7,195.6L840.8,192.1L842.4,193.1L843.2,194.8L844.5,194.2L846.2,195.3L847.1,196.5L847.8,199.5L849.6,202.3L851.2,202.9L853.9,202.5L854.9,204.0M850.7,241.4L847.9,241.1L846.5,241.9L844.8,244.5L824.5,248.9L816.4,250.5L798.2,253.9L782.2,256.8L764.5,259.8L761.1,239.1L756.1,208.9M490.5,195.2L488.2,195.2L488.2,196.7L489.4,197.8L489.3,199.5L488.4,199.8L488.8,201.5L490.0,201.5L490.8,203.8L489.6,205.5L489.7,207.5L489.0,210.0L487.5,211.9L487.5,213.3L489.1,214.5L490.6,218.2L487.9,217.9L486.2,215.5L486.6,214.7L484.7,214.0L484.6,213.3L481.7,212.0L479.2,211.7L477.8,210.0L476.4,209.5L474.2,209.9L471.5,209.6L470.4,210.0L467.0,209.5L465.7,211.5L464.3,211.6L462.7,210.3L457.2,207.3L456.7,206.1L434.1,205.4L421.6,204.8L403.7,203.9L391.0,203.0L365.2,201.0L369.0,155.7L369.3,155.6L371.0,134.3M526.4,420.7L528.8,422.8L529.9,422.0L531.3,422.5L532.1,421.6L533.2,422.5L534.7,422.5L535.0,434.6L535.4,457.9L536.7,459.5L538.1,460.3L539.8,462.9L540.2,464.9L539.5,466.9L540.0,467.9L541.8,469.0L543.1,472.3L542.6,473.4L544.0,474.3L544.4,476.5L545.4,476.2L545.5,478.5L546.1,479.9L545.1,480.4L546.0,481.8L545.2,483.0L545.5,484.4L544.3,486.3L544.3,487.4L542.3,490.2L542.9,493.2L541.8,494.5L541.6,495.7L542.7,496.6L542.6,498.5L543.3,500.0L542.4,501.2L543.0,502.0L541.4,503.5L540.2,506.4L538.8,507.4L540.6,510.3M296.2,452.0L294.9,450.8L294.3,449.2L295.1,446.9L317.7,449.3L338.7,451.3L362.8,453.2L364.6,429.5L366.6,407.5L370.1,360.8L370.9,350.7L371.6,350.7M365.2,201.0L361.4,246.5M277.0,237.1L285.8,238.3L301.0,240.2L333.1,243.9L347.8,245.4L361.4,246.5L382.1,248.1L395.3,249.0L393.8,271.8L390.5,326.6L389.6,340.6L377.9,339.8L372.4,339.3L348.5,337.5L334.5,336.2L315.2,334.3L303.3,333.0L303.2,332.8L278.7,329.8L264.6,327.9L268.3,301.5L268.3,298.9L269.7,288.8L271.1,279.6L277.0,237.1L268.9,236.0L252.7,233.7L243.5,232.2L247.1,209.5L249.8,193.3L256.0,153.8L257.8,142.0L263.3,143.1L271.3,144.2L288.7,146.5L289.0,146.7L298.3,147.9L320.0,150.6L320.8,150.8L339.2,152.9L339.4,152.8L357.7,154.6L369.0,155.7M898.7,178.0L901.0,185.7L902.2,191.0L901.5,191.3L901.7,193.4M874.0,208.3L872.2,206.0L875.7,202.5L874.1,200.9L871.1,183.9M509.9,275.2L507.9,273.8L508.3,272.3L506.9,270.9L507.1,270.0L504.6,268.0L503.2,264.5L503.8,263.4L502.0,263.1L502.0,261.8L521.3,262.0L530.6,261.8L544.8,261.2L564.6,260.1L570.9,259.5L571.7,260.9L574.5,262.9L574.6,264.0L576.4,264.7L575.1,268.0L575.5,272.5L576.9,275.0L576.5,276.1L578.0,278.0L578.0,279.5L582.9,283.6L584.1,285.6L587.6,287.9L589.7,289.8L590.7,293.5L590.2,294.3L591.3,297.2L593.4,298.2L594.9,296.0L598.4,296.9L600.9,298.4L600.8,299.6L599.4,301.4L600.1,303.2L598.8,305.9L598.3,308.2L597.5,309.2L597.1,311.6L597.6,313.2L599.7,315.4L601.7,316.4L604.2,318.5L605.5,318.5L604.7,319.5L606.1,320.5L607.0,319.7L609.0,320.9L611.9,323.7L613.3,324.3L614.0,326.3L613.4,327.7L614.9,329.9L615.1,332.0L613.7,333.4L614.8,334.2L614.9,335.3L616.6,338.0L616.7,338.9L618.5,339.9L618.7,338.2L620.1,340.0L621.1,339.9L621.8,340.2L621.3,343.0L620.6,343.9L621.8,344.7L620.4,346.1L621.2,347.1L620.1,349.4L618.2,348.1L617.4,348.6L616.8,351.3L615.6,351.4L615.6,349.8L613.9,350.3L614.6,351.5L615.3,354.2L613.6,355.9L615.0,356.7L614.1,357.4L612.0,357.6L613.7,358.8L614.2,360.0L612.7,361.1L611.9,363.1L600.2,363.9L601.1,361.7L602.6,360.5L602.8,359.4L605.1,357.3L605.0,354.3L603.8,353.9L603.6,352.2L586.0,353.2L564.6,354.1L549.9,354.6L535.8,355.0L522.9,355.2M782.2,256.8L784.1,268.5L787.1,265.8L787.5,264.4L789.2,262.9L789.7,261.3L792.2,261.5L794.3,257.4L797.0,258.5L800.3,258.2L801.7,255.2L803.3,255.4L804.5,253.3L805.7,253.4L807.7,254.9L810.7,254.4L810.6,256.4L812.8,258.1L813.2,260.1L813.9,260.3L812.8,264.9L802.5,259.1L803.1,261.6L802.2,264.0L802.8,266.0L798.6,272.9L797.4,273.6L796.5,276.6L794.0,275.0L793.3,276.5L791.7,283.0L790.3,285.9L787.2,285.3L785.8,283.4L783.7,282.8L783.3,285.6L783.7,286.6L782.0,289.8L780.4,294.1L780.8,294.6L779.9,297.4L776.8,302.2L775.9,305.1L777.5,306.3L775.8,308.0L776.5,309.2L773.8,311.7L772.9,310.4L768.8,313.7L767.0,312.6L767.5,314.5L766.7,315.3L763.1,316.7L761.2,318.0L758.4,316.1L757.7,317.7L755.4,319.6L753.3,320.0L751.1,318.5L749.9,318.6L748.2,316.7L748.0,315.4L746.8,314.6L747.9,313.6L747.1,313.2L744.4,313.1L744.0,312.4L740.9,311.0L739.7,308.5L738.0,306.5L736.4,305.6L736.9,304.3L735.9,304.1L735.1,302.6L733.7,301.6L733.5,299.0L734.0,298.3L733.2,294.7L734.4,295.0L737.8,293.4L737.9,290.4L739.7,289.8L739.4,287.3L738.5,285.3L739.6,284.1L740.1,280.9L741.4,279.5L742.8,280.2L743.9,282.7L745.0,280.9L745.9,281.2L745.6,279.4L744.6,277.8L745.7,277.3L745.2,275.4L746.3,273.0L748.1,273.0L748.1,271.3L749.7,269.4L751.6,270.6L753.6,269.4L757.8,263.4L758.7,263.0L759.1,260.7L758.4,260.1L759.7,256.1L759.4,252.4L760.9,246.6L760.4,243.1L758.8,241.0L759.2,239.9L761.1,239.1M576.4,264.7L577.1,264.4L577.2,261.8L576.5,260.9L577.4,259.3L580.1,258.5L581.2,257.7L581.4,254.5L583.6,251.8L583.6,247.8L580.6,244.7L581.5,240.7L584.7,239.6L588.1,239.2L589.1,238.0L591.3,237.6L593.2,236.0L593.5,232.7L595.5,231.0L596.0,226.4L595.5,223.8L594.5,222.9L591.5,221.5L591.0,219.4L590.0,218.1L586.9,216.2L587.0,215.3L596.4,214.8L617.8,213.7L628.9,212.7L634.1,212.3M639.3,319.7L638.8,321.1L637.3,323.0L637.9,325.0L639.3,326.2L639.0,327.2L635.5,328.0L634.1,329.3L633.3,328.8L632.2,329.8L631.6,332.2L633.5,335.1L633.0,336.9L631.5,337.1L629.9,336.0L628.0,335.7L624.3,334.0L623.1,334.2L620.6,337.5L620.2,339.1L621.1,339.9M611.9,363.1L613.6,365.2L611.4,365.6L612.6,367.2L611.3,367.6L610.8,368.7L608.3,369.3L608.9,371.2L610.2,371.6L608.4,372.8L609.2,374.4L607.8,373.4L607.0,373.8L607.5,375.6L606.8,377.1L606.6,375.7L605.6,375.7L604.6,377.6L606.5,377.6L605.3,380.6L606.8,381.5L606.0,382.1L607.1,383.1L605.1,383.7L604.6,385.9L603.0,385.6L602.8,386.7L604.0,388.6L600.9,390.5L599.8,389.4L600.5,392.4L599.4,393.0L599.3,391.3L598.4,393.0L600.3,394.2L598.2,395.7L599.0,397.4L598.3,398.7L598.6,400.3L596.7,401.4L595.3,401.6L595.7,402.9L594.1,403.9L593.9,405.3L592.7,404.5L593.1,405.9L594.5,405.8L594.2,406.8L592.8,406.3L592.1,407.6L593.6,408.1L593.3,409.4L591.5,409.7L589.7,410.8L591.2,411.9L590.1,413.3L591.7,415.1L588.9,415.4L589.4,417.0L591.0,417.6L589.9,418.0L588.6,417.0L587.4,417.7L589.3,419.5L587.5,420.3L588.4,421.8L587.5,423.2L588.9,424.5L590.9,423.2L589.4,425.1L590.5,428.0L590.7,429.7L588.8,429.9L588.5,430.7L590.0,431.6L589.3,433.0L569.4,433.8L535.0,434.6M32.5,159.9L46.4,164.1L62.1,168.4L83.6,174.7L100.4,179.1L88.8,224.3L84.5,240.5L83.2,245.5L116.5,295.6L132.0,318.9L156.8,356.1M863.7,270.2L852.5,272.5L845.8,248.4L844.8,244.5M576.3,193.2L576.5,196.3L578.3,197.4L579.2,198.7L577.4,201.6L578.2,206.7L578.9,207.2L579.9,210.5L581.9,211.6L585.5,212.4L587.0,215.3M502.0,261.8L501.6,260.1L499.9,258.5L500.7,257.6L501.1,255.1L500.9,252.9L500.2,252.1L500.3,250.3L498.9,244.7L499.3,241.9L497.9,241.5L497.5,239.9L496.4,239.8L496.0,236.4L496.8,233.9L495.3,231.6L495.8,230.1L494.1,229.6L493.5,226.9L492.2,225.8L492.6,224.2L491.0,221.4L491.6,219.2L490.6,218.2M692.5,284.2L693.7,283.1L696.4,284.5L698.5,283.2L699.4,284.5L700.9,284.8L703.2,287.8L703.8,289.8L706.4,290.3L708.0,289.7L710.1,290.1L711.9,292.2L713.8,292.6L714.6,291.2L716.2,290.6L719.0,291.2L720.6,292.4L721.3,291.6L723.0,291.5L724.6,288.9L726.9,287.9L728.4,291.6L730.5,292.0L732.7,293.7L733.2,294.7M747.1,313.2L741.1,320.4L737.9,322.2L735.1,324.6L735.3,326.3L733.0,328.2L733.0,330.2L731.5,331.2L729.7,331.5L728.9,334.2L726.0,335.3L724.0,336.6L722.1,336.9L719.7,338.7L719.5,339.1L704.2,340.7L698.8,341.2L692.4,341.4L687.2,342.3L681.0,342.8L672.0,343.1L667.4,343.5L658.0,344.6L644.7,346.0L644.7,345.3L640.7,345.3L641.7,348.4L641.4,349.5L618.9,351.0L616.8,351.3M615.6,351.4L614.6,351.5M849.8,284.9L848.9,285.1M862.5,280.4L856.0,282.6L855.4,283.8M827.0,273.7L826.8,272.8L828.1,271.5L827.9,269.9M825.8,266.9L826.9,265.3L829.6,267.1L827.9,269.9L827.7,268.5L825.8,266.9L823.4,266.2L823.3,265.4L821.5,264.8L819.3,264.9L818.1,264.1L818.7,261.5L816.5,260.1L813.9,260.3M708.2,221.7L693.2,224.2L685.8,225.3M632.4,153.0L631.2,152.8L629.9,151.4L630.9,147.5L630.1,146.4L629.2,147.4L627.3,147.0L628.3,144.0L627.6,142.6L628.4,141.6L628.2,140.2L626.1,138.4L624.5,137.7L623.0,138.0L622.3,137.3L623.2,136.2L622.6,135.0L620.3,134.2L617.6,134.2L616.1,133.3L614.4,134.1L611.9,133.7L606.7,131.3L590.2,127.9L588.3,124.1L585.7,123.7L585.3,123.0M602.8,386.7L618.9,385.7L641.6,383.9M624.7,495.4L623.8,495.4L622.2,493.1L622.4,491.9L621.2,489.4L618.7,487.2L617.6,484.9L618.3,481.8L619.0,477.0L605.8,477.9L582.5,479.1L583.9,478.2L582.6,476.1L583.3,475.0L582.2,473.0L584.5,472.7L584.7,471.9L583.3,470.0L583.9,469.2L584.5,470.6L585.3,470L584.4,468.9L584.3,466.9L586.3,465.9L584.8,465.6L584.5,464.3L586.4,464.8L586.4,462.7L588.9,461.3L587.0,461.3L587.4,459.5L588.7,459.4L590.3,457.8L590.1,456.8L592.2,455.4L591.7,454.7L592.5,453.0L590.4,452.9L590.3,451.4L593.0,450.4L593.8,449.0L595.3,448.2L593.5,447.7L593.3,445.5L592.6,445.9L590.9,444.9L591.1,443.9L593.3,444.4L591.5,443.2L592.9,441.6L590.7,442.5L590.0,441.3L591.7,439.3L589.8,439.0L589.9,436.6L591.3,435.6L590.9,433.6L589.9,433.6L589.7,435.3L588.5,434.8L589.3,433.0M256.0,153.8L254.9,153.2L253.5,151.0L253.7,150.0L252.5,147.5L251.5,146.7L249.9,147.5L248.9,149.7L249.6,151.0L245.9,150.2L243.8,151.0L243.2,149.7L239.3,150.0L236.6,148.4L235.3,149.1L234.6,150.9L233.3,149.9L228.4,148.9L226.9,151.6L224.8,149.1L225.0,147.4L224.1,145.4L224.7,145.1L224.0,141.5L222.4,140.0L220.8,140.6L219.3,138.5L219.0,136.5L219.9,136.4L220.2,134.2L218.5,132.3L218.4,130.8L216.8,127.4L217.1,125.9L216.6,124.3L217.2,122.9L216.1,122.7L216.9,121.0L214.5,118.2L213.8,119.3L211.6,121.0L209.7,120.9L208.0,122.6L206.5,119.9L205.1,119.7L205.3,117.9L206.4,117.4L205.8,114.9L207.2,113.4L208.6,113.6L209.1,111.3L208.1,109.0L208.9,108.0L208.3,106.3L209.4,106.4L209.4,104.2L210.0,104.1L210.7,101.7L211.6,100.6L213.4,96.2L212.9,95.6L211.1,96.1L208.8,95.5L209.1,94.0L208.0,93.0L206.8,93.8L206.8,91.9L204.7,89.6L205.3,88.3L203.7,86.9L203.4,85.1L201.5,82.3L200.8,79.7L197.9,78.0L197.8,76.9L195.2,74.2L197.0,74.2L195.8,71.7L196.8,71.0L196.8,68.7L195.5,67.1L193.2,61.5L198.0,39.0M884.0,164.8L882.2,163.3L881.6,160.1L882.7,158.5L882.1,157.6L880.5,145.7L881.2,144.9L881.0,142.6L882.2,140.7L882.0,138.7L882.8,136.1L882.3,135.4L883.1,132.9L881.5,129.1L881.8,127.9L885.0,126.2L887.9,122.0L887.5,119.1L885.6,116.7L886.2,115.8L886.8,112.7L885.7,111.3L886.1,110.5M857.5,117.8L858.1,119.8L857.9,121.7L858.7,122.3L858.6,123.8L859.2,127.2L860.8,128.9L861.4,130.5L861.1,131.8L862.0,133.9L861.2,136.1L861.2,139.5L864.1,145.2L863.6,148.5L864.4,149.9L864.5,148.6L865.6,148.2L867.0,150.2L870.2,165.6L870.9,167.6M70.9,70.2L72.0,70.3L72.2,72.4L74.2,73.9L76.9,73.7L79.5,76.9L80.1,79.9L79.6,84.1L78.9,86.8L80.0,88.0L86.1,91.4L88.6,91.3L92.0,90.5L93.8,89.8L94.9,90.4L98.1,90.6L100.0,91.8L101.0,91.8L102.7,93.1L102.8,94.6L104.5,94.1L108.2,94.6L112.0,93.8L113.7,95.4L118.4,96.0L119.2,95.4L122.7,94.8L127.4,95.3L129.3,94.1L130.5,94.9L134.2,95.0L136.2,95.7L138.7,94.7L151.9,97.9L170.5,102.3L171.9,106.8L175.0,109.0L174.9,110.6L175.6,112.3L170.9,118.1L169.1,121.9L166.7,124.1L166.5,126.1L164.2,129.1L161.9,129.9L159.5,133.9L158.1,134.7L157.4,136.6L157.8,139.9L159.0,139.7L159.6,141.0L160.9,141.1L161.6,143.2L160.0,144.4L160.4,146.0L157.9,150.4L148.8,190.7L121.5,184.5L100.4,179.1M719.7,338.7L727.1,337.9L737.3,336.5L750.9,334.5L751.0,334.0L755.9,333.3L755.5,333.9M176.0,313.3L176.4,310.9L190.9,236.2L197.3,203.5L197.7,201.0L200.1,201.6L228.2,206.4L228.5,206.5L247.1,209.5M183.5,35.9L180.4,49.6L178.3,58.6L170.7,92.4L170.1,94.1L170.9,95.5L171.2,98.4L170.3,99.9L170.5,102.3M197.7,201.0L181.4,197.7L159.5,193.1L148.8,190.7"></path>
+            <g id="homes"></g>
+            <g id="dots"></g>
+          </svg>
+          <div class="tip" id="tip" hidden></div>
+        </div>
+        <div class="maplegend" id="maplegend">
+          <span><i style="background: var(--g-a)"></i>A range</span>
+          <span><i style="background: var(--g-b)"></i>B range</span>
+          <span><i style="background: var(--g-c)"></i>C range</span>
+          <span><i style="background: var(--g-d)"></i>D</span>
+          <span><svg width="12" height="12" viewBox="-6 -6 12 12" aria-hidden="true" style="vertical-align:-2px;margin-right:5px"><path d="M0-6 L6 0 L0 6 L-6 0Z" fill="currentColor"></path></svg>Home airports (KC, SA)</span>
+        </div>
+      </div>
+
+      <aside class="panel" aria-labelledby="top10-h">
+        <h2 id="top10-h">Your top 10</h2>
+        <p class="note">Bars show how much each category adds to the match.</p>
+        <ol class="top10" id="top10"></ol>
+      </aside>
+    </div>
+
+    <p class="foot">Scores are 1–5 ratings from October 2026 research. Flights reflect nonstop service from Kansas City (MCI) and San Antonio (SAT) as of fall 2026, and routes change, so recheck before booking. Phoenix and Denver are left out since the group has been.</p>
+  </section>
+
+  <section class="compare screen" id="compare" hidden>
+    <div class="row"><button class="linkish" id="cmp-back" type="button">← Back to your board</button></div>
+    <div class="res-head">
+      <p class="eyebrow">Finalists</p>
+      <h1 class="display" style="font-size: clamp(36px, 9vw, 60px)">Side by side</h1>
+      <p class="note" style="margin:0;color:var(--muted);font-size:14px">The strongest place in each score row is outlined. Swipe sideways on a phone.</p>
+    </div>
+    <div class="cmp-scroll"><div class="cmp" id="cmp"></div></div>
+  </section>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</main>
+<div id="print"></div>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+  <div class="grab" aria-hidden="true"></div>
+  <button class="close" id="sheet-close" type="button" aria-label="Close">×</button>
+  <div id="sheet-body"></div>
+</div>
+
+<script>
+const PTS = {"austin": [464, 497.4], "vegas": [153, 328.1], "nashville": [665.1, 355.1], "nola": [614.4, 501.3], "raleigh": [812.9, 343.1], "chicago": [638.2, 226.1], "louisville": [678.4, 305.6], "asheville": [743.1, 358.7], "bozeman": [260.5, 126.9], "myrtle": [817, 390.9], "lubbock": [388.1, 418.9], "tucson": [213.3, 430.8], "orlando": [788.9, 514.5], "lincoln": [486.1, 256.7], "pittsburgh": [770.8, 242.2], "greenbay": [626.8, 166.9], "stlouis": [599.8, 303.5], "charleston": [801.3, 414.8], "savannah": [782.1, 434.2], "memphis": [607.4, 382.9], "sandiego": [99.8, 397.4], "tahoe": [83.4, 243.2], "jackson": [257.1, 177], "parkcity": [234.7, 238.9], "boise": [170.2, 157.6], "seattle": [97.7, 46.2], "napa": [40.3, 250.5], "keywest": [794.4, 604.3], "gulfshores": [660.2, 491.1], "ozarks": [557.5, 315.4], "home_kc": [522.8, 295.7], "home_sa": [448.7, 516.3]};
+const CATS = [
+  { k: 'w', label: 'Weather', color: 'var(--c-weather)' },
+  { k: 'n', label: 'Nightlife & food', color: 'var(--c-nightlife)' },
+  { k: 'o', label: 'Outdoors', color: 'var(--c-outdoors)' },
+  { k: 's', label: 'Sports & events', color: 'var(--c-sports)' },
+  { k: 'l', label: 'Cost & travel', color: 'var(--c-logistics)' }
+];
+const QUESTIONS = [
+  { q: 'Saturday plans', a: ['A packed stadium', { s: 2 }], b: ['A sunrise tee time', { o: 2 }] },
+  { q: 'Pick a forecast', a: ['Guaranteed warm weather', { w: 2 }], b: ['Risky weather, but a huge event', { s: 2 }] },
+  { q: 'Getting around', a: ['Walk to every bar', { n: 2 }], b: ['Drive out to a lake house', { o: 2 }] },
+  { q: 'Getting there', a: ['A nonstop flight to a good spot', { l: 2 }], b: ['A connection to a great spot', { n: 1, o: 1 }] },
+  { q: 'Pick a budget', a: ['A solid $900 trip', { l: 2 }], b: ['$1,800 with premium game tickets', { s: 2 }] },
+  { q: 'Football this year', a: ['Follow K-State on the road', { s: 2 }], b: ['Skip football, just a great weekend', { n: 1, w: 1 }], cats: 'a' },
+  { q: 'Pick the weather', a: ['75° and sunny', { w: 2 }], b: ['55° with fall colors and half-price rooms', { l: 2 }] },
+  { q: 'Pick an hour', a: ['Last call at 2 a.m.', { n: 2 }], b: ['Early morning on the water', { o: 2 }] },
+  { q: 'How far', a: ['A short, easy trip', { l: 2 }], b: ['A bucket-list place, long travel and all', { w: 1, o: 1 }] },
+  { q: 'Pick a setting', a: ['Big-city energy', { n: 2 }], b: ['A beach chair and a cooler', { w: 2 }] }
+];
+const BASE = 4;
+const DEST = [
+  { id: 'austin', name: 'Austin', vibe: 'Barbecue, live music, Lake Travis', w: 4, n: 5, o: 4, s: 5, l: 4, win: 'October', hi: 82, kc: 'Nonstop (Southwest, twice daily)', sa: 'About a 1.5-hr drive', ev: 'ACL Fest (usually the first two October weekends), the F1 US Grand Prix at COTA, Longhorns home games', wo: 'Hotel prices spike on ACL and F1 weekends' },
+  { id: 'vegas', name: 'Las Vegas', vibe: 'Casinos, shows, fight nights, golf', w: 5, n: 5, o: 3, s: 4, l: 5, win: 'October', hi: 81, kc: 'Nonstop (Southwest)', sa: 'Nonstop (Southwest, Frontier)', ev: 'Raiders and UNLV games; F1 Grand Prix the week before Thanksgiving', wo: 'Skip F1 week unless you want it; prices soar' },
+  { id: 'nashville', name: 'Nashville', vibe: 'Honky-tonks, hot chicken, NFL', w: 4, n: 5, o: 2, s: 5, l: 4, win: 'Late Sep–Oct', hi: 71, kc: 'Nonstop (Southwest)', sa: 'Nonstop (Southwest)', ev: "Titans open their new enclosed Nissan Stadium for the 2027 season", wo: 'Bachelor-party crowds; pricey hotels on game weekends' },
+  { id: 'nola', name: 'New Orleans', vibe: 'Food, jazz, French Quarter', w: 4, n: 5, o: 2, s: 4, l: 4, win: 'Mid Oct–Nov', hi: 80, kc: 'Nonstop daily (Southwest)', sa: 'Nonstop (Southwest)', ev: 'Saints and Tulane home games', wo: 'Hurricane season runs through November' },
+  { id: 'raleigh', name: 'Raleigh + Pinehurst', vibe: 'Follow the Wildcats, then golf', w: 4, n: 3, o: 4, s: 5, l: 3, win: 'Sept 25, 2027 weekend', hi: 80, kc: 'Nonstop (Southwest Sundays, Delta)', sa: 'Nonstop (Breeze, twice weekly), then about a 1.5-hr drive to Pinehurst', ev: 'K-State at NC State on Sat, Sept 25, 2027; Pinehurst golf about an hour away', wo: 'Date is locked to the game', ks: true },
+  { id: 'chicago', name: 'Chicago', vibe: 'Big-city bars, deep dish, Wrigleyville', w: 3, n: 5, o: 2, s: 5, l: 4, win: 'Late Sep–early Oct', hi: 62, kc: 'Nonstop (O’Hare and Midway)', sa: 'Nonstop to O’Hare (American, United) and Midway (Southwest)', ev: 'Bears games; Notre Dame is about a 2-hour drive', wo: 'Coolest big city on the list by late October; expensive' },
+  { id: 'louisville', name: 'Louisville + Lexington', vibe: 'Bourbon Trail and horse racing', w: 4, n: 3, o: 3, s: 4, l: 3, win: 'October', hi: 69, kc: 'Limited nonstop (select days) or ~7.5-hr drive', sa: 'Connection', ev: 'Keeneland Fall Meet in October; Louisville Cardinals games', wo: "The 2027 Breeders' Cup is in New York, not Kentucky" },
+  { id: 'asheville', name: 'Asheville', vibe: 'Breweries, Blue Ridge Parkway, fall color', w: 4, n: 3, o: 5, s: 1, l: 2, win: 'Mid–late October', hi: 67, kc: 'Connection', sa: 'Connection', ev: 'Peak leaf season, mid-to-late October', wo: 'No big game in town; two flights for everyone' },
+  { id: 'bozeman', name: 'Bozeman', vibe: 'Fly fishing, Yellowstone, mountain town', w: 2, n: 2, o: 5, s: 3, l: 3, win: 'Mid Sep–early Oct', hi: 56, kc: 'Connection (usually via Denver)', sa: 'Connection', ev: 'Montana State Bobcats home games', wo: 'Cold nights, early snow; most Yellowstone roads close in early November' },
+  { id: 'myrtle', name: 'Myrtle Beach', vibe: 'Golf capital, beach bars', w: 4, n: 3, o: 4, s: 1, l: 2, win: 'October', hi: 76, kc: 'Connection (KC nonstop is summer-only)', sa: 'Connection', ev: 'Prime fall golf season with stay-and-play packages', wo: 'Hurricane season; quieter nightlife after summer' },
+  { id: 'lubbock', name: 'Lubbock', vibe: 'Red Raider game day, West Texas barbecue', w: 4, n: 3, o: 1, s: 5, l: 2, win: 'Game weekend (date TBA)', hi: 75, kc: 'Connection via Dallas or ~8.5-hr drive', sa: 'Connection (or about a 6-hr drive)', ev: 'K-State at Texas Tech (2027 date TBA)', wo: 'Not much beyond game day', ks: true },
+  { id: 'tucson', name: 'Tucson', vibe: 'Desert golf, Sonoran food, Wildcats vs. Wildcats', w: 4, n: 3, o: 4, s: 5, l: 2, win: 'Game weekend (date TBA)', hi: 88, kc: 'Connection', sa: 'Connection (or nonstop to Phoenix, then a 2-hr drive)', ev: 'K-State at Arizona (2027 date TBA)', wo: 'Feels a lot like Phoenix; heat early in the fall', ks: true },
+  { id: 'orlando', name: 'Orlando', vibe: 'Golf, theme parks, a Wildcats road game', w: 3, n: 3, o: 3, s: 5, l: 4, win: 'Game weekend (date TBA)', hi: 84, kc: 'Nonstop', sa: 'Nonstop (Southwest, Frontier)', ev: 'K-State at UCF (2027 date TBA)', wo: 'Humid; hurricane season through November', ks: true },
+  { id: 'lincoln', name: 'Lincoln', vibe: 'Sea of red at Memorial Stadium', w: 3, n: 3, o: 1, s: 5, l: 3, win: 'Sep–Oct', hi: 65, kc: 'About a 3-hr drive', sa: 'Connection', ev: 'Huskers home games and Haymarket bars', wo: 'Big-opponent tickets get pricey' },
+  { id: 'pittsburgh', name: 'Pittsburgh', vibe: 'Steelers, Primanti’s, bridges and bars', w: 3, n: 4, o: 2, s: 5, l: 3, win: 'Late Sep–Oct', hi: 63, kc: 'Connection likely; check schedules', sa: 'Connection', ev: 'Steelers and Pitt home games', wo: 'Probably two flights for most of the group' },
+  { id: 'greenbay', name: 'Green Bay + Milwaukee', vibe: 'Lambeau pilgrimage, Milwaukee breweries', w: 2, n: 4, o: 2, s: 5, l: 3, win: 'Sep–early Oct', hi: 57, kc: 'Nonstop to Milwaukee (Southwest), then a 2-hr drive', sa: 'Connection', ev: 'Packers games at Lambeau Field', wo: 'Packers tickets are scarce; cold by late October' },
+  { id: 'stlouis', name: 'St. Louis', vibe: 'Easy drive, Busch brewery, Blues hockey', w: 4, n: 3, o: 2, s: 3, l: 4, win: 'Sep–Oct', hi: 68, kc: 'About a 4-hr drive', sa: 'Nonstop (Southwest)', ev: 'Blues hockey starts in October; Cardinals if there is a playoff run', wo: 'Feels close to home' },
+  { id: 'charleston', name: 'Charleston', vibe: 'Lowcountry food, rooftop bars, Kiawah golf', w: 4, n: 5, o: 4, s: 1, l: 2, win: 'Oct–Nov', hi: 77, kc: 'Connection', sa: 'Connection', ev: 'Fall golf season at Kiawah and Wild Dunes', wo: 'Hurricane season; pricey downtown hotels' },
+  { id: 'savannah', name: 'Savannah', vibe: 'Historic squares, to-go cups, ghost tours', w: 4, n: 4, o: 2, s: 1, l: 2, win: 'October', hi: 79, kc: 'Seasonal weekend nonstop (Southwest); check fall dates', sa: 'Connection', ev: 'Peak ghost-tour season around Halloween', wo: 'Small; best paired with Charleston' },
+  { id: 'memphis', name: 'Memphis', vibe: 'Beale Street blues, barbecue, Grizzlies', w: 4, n: 4, o: 1, s: 3, l: 3, win: 'October', hi: 74, kc: 'Connection or ~7-hr drive', sa: 'Nonstop (Breeze, twice weekly)', ev: 'Grizzlies season tips off in October; Memphis Tigers football', wo: 'Little to do beyond music and food' },
+  { id: 'sandiego', name: 'San Diego', vibe: 'Beaches, craft beer, Gaslamp nights', w: 5, n: 4, o: 4, s: 3, l: 4, win: 'Sep–Nov', hi: 74, kc: 'Nonstop daily (Southwest)', sa: 'Nonstop (Southwest)', ev: 'San Diego State games, Torrey Pines golf, deep-sea fishing', wo: 'Expensive near the water' },
+  { id: 'tahoe', name: 'Lake Tahoe', vibe: 'Big lake house, Stateline casinos, hikes', w: 3, n: 3, o: 5, s: 1, l: 3, win: 'Sep–early Oct', hi: 72, kc: 'Connection to Reno, then about 1 hr by car', sa: 'Connection', ev: 'Quiet shoulder season and fall color', wo: 'Early snow possible by late October' },
+  { id: 'jackson', name: 'Jackson Hole', vibe: 'Tetons, elk season, cowboy bars', w: 3, n: 3, o: 5, s: 1, l: 2, win: 'September', hi: 67, kc: 'Connection', sa: 'Connection', ev: 'Elk rut and fall color in Grand Teton', wo: 'Expensive; cold after mid-September' },
+  { id: 'parkcity', name: 'Park City', vibe: 'Mountain-town bars, golf, Utah game days', w: 3, n: 3, o: 5, s: 3, l: 4, win: 'September', hi: 71, kc: 'Nonstop to Salt Lake City, then a 40-min drive', sa: 'Nonstop to Salt Lake City (Delta), then a 40-min drive', ev: 'Utah and BYU home games within about an hour', wo: 'Utah liquor rules; quiet between seasons' },
+  { id: 'boise', name: 'Boise', vibe: 'Blue turf, river town, Idaho brews', w: 4, n: 3, o: 4, s: 4, l: 3, win: 'Sep–Oct', hi: 72, kc: 'Connection', sa: 'Connection', ev: 'Boise State games on the blue turf', wo: 'Smaller nightlife scene' },
+  { id: 'seattle', name: 'Seattle', vibe: 'Seahawks, Pike Place, waterfront bars', w: 2, n: 4, o: 4, s: 4, l: 4, win: 'September', hi: 70, kc: 'Nonstop', sa: 'Nonstop (Alaska)', ev: 'Seahawks and Huskies home games', wo: 'Rain usually returns by October' },
+  { id: 'napa', name: 'Napa + Sonoma', vibe: 'Wine country, long dinners, golf', w: 5, n: 3, o: 4, s: 1, l: 4, win: 'Sep–Oct (harvest)', hi: 80, kc: 'Nonstop to SFO, then about a 1-hr drive', sa: 'Nonstop to San Francisco (United), then about a 1.5-hr drive', ev: 'Harvest season at the wineries', wo: 'Expensive; harvest weekends book up' },
+  { id: 'keywest', name: 'Key West', vibe: 'Duval Street, boat days, sunsets', w: 4, n: 5, o: 4, s: 1, l: 1, win: 'November', hi: 82, kc: 'Connection, or Miami nonstop plus a 3.5-hr drive', sa: 'Nonstop to Miami (American), then a 3.5-hr drive', ev: 'Fantasy Fest in late October (wild, adults only)', wo: 'Hurricane season; far and pricey for everyone' },
+  { id: 'gulfshores', name: 'Gulf Shores', vibe: 'Fishing charters, beach bars, Flora-Bama', w: 4, n: 3, o: 4, s: 1, l: 2, win: 'October', hi: 79, kc: 'Connection to Pensacola (KC nonstop is seasonal)', sa: 'Connection likely; Breeze nonstop to Pensacola is seasonal, check fall dates', ev: 'National Shrimp Festival, usually in October', wo: 'Hurricane season' },
+  { id: 'ozarks', name: 'Lake of the Ozarks', vibe: 'Boat days, lake house, Party Cove', w: 3, n: 3, o: 4, s: 1, l: 4, win: 'September', hi: 80, kc: 'About a 3-hr drive', sa: 'Nonstop to Kansas City (Southwest), then about a 3-hr drive', ev: 'End of boating season; Bikefest in September', wo: 'Things wind down after September' }
+];
+
+// Fall 2027 research (Oct 2026): NOAA 1991-2020 normals, event/team sites; est = projected from past years, tba = dates not announced
+const FALL = {
+  austin: {"wx":{"sep":[91,70,7],"oct":[83,61,7],"nov":[72,51,7]},"hur":"some","wxnote":"Still hot in Sept; pleasant Oct–Nov; occasional Gulf remnant downpours","best":[{"s":"10-28","e":"11-14","why":"Mild weather, ACL/F1 crowds gone, Longhorns SEC home games likely"},{"s":"09-02","e":"09-05","why":"Michigan at DKR, Labor Day nightlife; hot but huge game"}],"ev":[{"s":"09-04","e":"09-04","label":"Texas vs Michigan (DKR)"},{"s":"10-01","e":"10-10","label":"ACL Fest (2 weekends)","est":1},{"s":"10-22","e":"10-24","label":"F1 US Grand Prix, COTA"},{"s":"09-11","e":"11-27","label":"Texas home: Georgia/Auburn/UK/A&M","est":1,"tba":1},{"s":"11-25","e":"11-27","label":"Texas vs Texas A&M (Thanksgiving wknd)","est":1}],"pricey":[{"s":"10-01","e":"10-03","label":"ACL Weekend 1","why":"75k/day festival fills downtown hotels","est":1},{"s":"10-08","e":"10-10","label":"ACL Weekend 2","why":"Same festival crowds, Zilker sold out","est":1},{"s":"10-21","e":"10-25","label":"F1 US Grand Prix","why":"Biggest hotel spike of the year; 3x rates"},{"s":"09-03","e":"09-05","label":"Texas vs Michigan","why":"Marquee non-conference game, Labor Day weekend"}],"games":[]},
+  vegas: {"wx":{"sep":[95,72,2],"oct":[81,60,2],"nov":[67,47,2]},"hur":"none","wxnote":"Very hot early Sept; ideal October; cool desert nights by Nov","best":[{"s":"10-07","e":"11-07","why":"80s weather, Raiders/Knights in season, before F1 surcharge"},{"s":"09-17","e":"09-19","why":"Mexican Independence Day fight weekend plus UNLV-ASU"}],"ev":[{"s":"09-09","e":"11-30","label":"Raiders home games","est":1,"tba":1},{"s":"09-18","e":"09-18","label":"UNLV vs Arizona State (Allegiant)"},{"s":"09-18","e":"09-18","label":"Mexican Independence Day big fight","est":1},{"s":"10-08","e":"11-30","label":"Golden Knights home season","est":1},{"s":"11-18","e":"11-20","label":"F1 Las Vegas Grand Prix","est":1}],"pricey":[{"s":"11-16","e":"11-21","label":"F1 Las Vegas GP","why":"Strip closures, record room rates all week","est":1},{"s":"11-01","e":"11-05","label":"SEMA Show","why":"160k-attendee convention; midweek rates soar","est":1},{"s":"09-17","e":"09-19","label":"Mexican Independence Day fight wknd","why":"Mega-fight weekend spikes Strip hotels","est":1}],"games":[]},
+  nashville: {"wx":{"sep":[84,62,8],"oct":[74,50,8],"nov":[61,39,9]},"hur":"some","wxnote":"Warm Sept; fall color late Oct; chilly November nights","best":[{"s":"10-01","e":"10-31","why":"Perfect fall weather; Titans, Vandy SEC games, Broadway in full swing"},{"s":"09-17","e":"09-19","why":"Vandy home game, warm, pre-Pilgrimage crowds"}],"ev":[{"s":"09-09","e":"11-30","label":"Titans home games","est":1,"tba":1},{"s":"09-04","e":"09-04","label":"Vanderbilt vs Eastern Kentucky"},{"s":"09-18","e":"09-18","label":"Vanderbilt vs Kennesaw State"},{"s":"09-25","e":"11-27","label":"Vandy SEC home: Texas, OU, etc.","est":1,"tba":1},{"s":"09-25","e":"09-26","label":"Pilgrimage Festival (Franklin)","est":1}],"pricey":[{"s":"09-24","e":"09-26","label":"Pilgrimage Festival","why":"Festival plus game weekend squeezes Nashville-Franklin hotels","est":1},{"s":"11-10","e":"11-12","label":"CMA Awards week","why":"Industry crowds raise downtown rates","est":1},{"s":"09-01","e":"11-30","label":"Vandy vs Texas/Oklahoma","why":"Visiting blue-blood fans flood Nashville","est":1,"tba":1}],"games":[]},
+  nola: {"wx":{"sep":[88,74,10],"oct":[81,64,7],"nov":[71,54,7]},"hur":"high","wxnote":"Peak hurricane season in Sept; risk drops by late Oct","best":[{"s":"10-28","e":"11-14","why":"Cooler, dry; Halloween in Quarter, Saints season, pre-Thanksgiving prices"},{"s":"10-08","e":"10-24","why":"Weather breaks, hurricane risk fading, Saints/Tulane home slots"}],"ev":[{"s":"09-09","e":"11-30","label":"Saints home games","est":1,"tba":1},{"s":"09-04","e":"09-04","label":"Tulane vs Louisiana (Yulman)"},{"s":"09-25","e":"09-25","label":"Tulane vs Nicholls"},{"s":"10-29","e":"10-31","label":"Halloween in the French Quarter","est":1},{"s":"11-27","e":"11-27","label":"Bayou Classic (Superdome)","est":1}],"pricey":[{"s":"09-02","e":"09-06","label":"Southern Decadence / Labor Day","why":"Huge Quarter festival; downtown hotels sell out","est":1},{"s":"11-25","e":"11-28","label":"Bayou Classic weekend","why":"200k visitors, Superdome game, rates spike","est":1},{"s":"10-29","e":"10-31","label":"Halloween weekend","why":"Big party weekend in Quarter/Marigny","est":1}],"games":[]},
+  raleigh: {"wx":{"sep":[83,63,9],"oct":[73,50,8],"nov":[63,40,8]},"hur":"some","wxnote":"Sept tropical remnants possible; October mild and fairly dry","best":[{"s":"10-01","e":"10-03","why":"Wolfpack home game, Pinehurst prime golf weather"},{"s":"10-25","e":"11-14","why":"Peak Sandhills golf, fall color, after State Fair crowds"}],"ev":[{"s":"10-02","e":"10-02","label":"NC State vs Louisiana Tech"},{"s":"09-04","e":"11-27","label":"NC State ACC home games","est":1,"tba":1},{"s":"10-14","e":"10-24","label":"NC State Fair","est":1},{"s":"10-08","e":"11-30","label":"Hurricanes NHL home season","est":1},{"s":"09-15","e":"11-15","label":"Pinehurst fall golf high season","est":1}],"pricey":[{"s":"10-14","e":"10-24","label":"NC State Fair","why":"~1M visitors; Raleigh hotels tighten","est":1},{"s":"10-01","e":"11-14","label":"Pinehurst peak green-fee season","why":"Top resort rates; book tee times months out","est":1},{"s":"11-05","e":"11-14","label":"Pinehurst Two Man Links","why":"Resort amateur event fills Pinehurst lodging","est":1,"tba":1}],"games":[{"s":"09-25","label":"K-State at NC State (Carter-Finley)","est":false}]},
+  chicago: {"wx":{"sep":[76,57,9],"oct":[63,45,11],"nov":[48,34,10]},"hur":"none","wxnote":"Mild Sept; cools fast in Oct; first snow possible in Nov","best":[{"s":"09-09","e":"09-26","why":"Best weather, Bears opener, Notre Dame home games, rooftop bars"},{"s":"10-15","e":"10-24","why":"Crisp fall, post-marathon prices, Bears/Notre Dame/Blackhawks in season"}],"ev":[{"s":"09-09","e":"11-30","label":"Bears home games","est":1,"tba":1},{"s":"09-04","e":"09-04","label":"Notre Dame vs Purdue (South Bend)"},{"s":"09-25","e":"09-25","label":"Notre Dame vs Auburn (South Bend)"},{"s":"10-10","e":"10-10","label":"Chicago Marathon"},{"s":"11-06","e":"11-06","label":"Notre Dame vs Virginia Tech"}],"pricey":[{"s":"10-08","e":"10-10","label":"Chicago Marathon","why":"50k runners; downtown hotels sell out"},{"s":"09-17","e":"09-19","label":"Riot Fest","why":"Large festival weekend raises rates","est":1},{"s":"09-24","e":"09-26","label":"ND vs Auburn (South Bend)","why":"South Bend rooms 3-4x; book now"}],"games":[]},
+  louisville: {"wx":{"sep":[82,62,8],"oct":[71,50,8],"nov":[58,39,10]},"hur":"some","wxnote":"Warm Sept, crisp Oct; rare remnant wind/rain (e.g., Ike 2008)","best":[{"s":"10-08","e":"10-17","why":"Keeneland racing, bourbon trail, peak fall weather, festivals over"},{"s":"10-22","e":"10-23","why":"Keeneland closing weekend; cooler, cheaper than opening"}],"ev":[{"s":"09-16","e":"09-19","label":"Louder Than Life fest","est":1},{"s":"09-23","e":"09-26","label":"Bourbon & Beyond","est":1},{"s":"10-01","e":"10-23","label":"Keeneland Fall Meet (Lexington)","est":1},{"s":"09-04","e":"11-20","label":"UofL home: Clemson, UNC, VT, Cuse","est":1,"tba":1},{"s":"11-27","e":"11-27","label":"Louisville vs Kentucky (Governor's Cup)","est":1}],"pricey":[{"s":"09-16","e":"09-19","label":"Louder Than Life","why":"Big multi-day festival fills Louisville hotels","est":1},{"s":"09-23","e":"09-26","label":"Bourbon & Beyond","why":"200k+ attendees; worst hotel weekend of fall","est":1},{"s":"10-01","e":"10-03","label":"Keeneland opening weekend","why":"Lexington rooms spike opening weekend","est":1},{"s":"09-17","e":"09-19","label":"Kentucky Bourbon Festival (Bardstown)","why":"Bardstown/bourbon-trail lodging books out","est":1}],"games":[]},
+  asheville: {"wx":{"sep":[79,58,9],"oct":[70,46,8],"nov":[60,36,9]},"hur":"some","wxnote":"Peak foliage mid/late Oct; Helene 2024 showed remnant flood risk","best":[{"s":"10-04","e":"10-14","why":"High-elevation color on Parkway, cheaper weekdays before city peak"},{"s":"11-01","e":"11-14","why":"Late color low elevations, post-peak prices, breweries quieter"}],"ev":[{"s":"10-10","e":"10-31","label":"Fall leaf peak (Parkway to city)","est":1},{"s":"09-01","e":"11-30","label":"Brewery scene / South Slope","est":1},{"s":"10-01","e":"10-31","label":"Blue Ridge Parkway hiking/color","est":1},{"s":"11-05","e":"11-30","label":"Biltmore Christmas season begins","est":1}],"pricey":[{"s":"10-15","e":"10-31","label":"Peak leaf-season weekends","why":"Asheville's highest rates; minimum-stay rules common","est":1},{"s":"10-08","e":"10-11","label":"Indigenous Peoples' Day wknd","why":"Long weekend plus early color crowds","est":1}],"games":[]},
+  bozeman: {"wx":{"sep":[71,42,9],"oct":[57,32,11],"nov":[42,22,10]},"hur":"none","wxnote":"Crisp Sept; first snow possible by late Oct; wintry Nov","best":[{"s":"09-10","e":"09-19","why":"Bobcat home games, warm days, fly-fishing, Yellowstone access"},{"s":"09-24","e":"10-03","why":"Fall color, Big Sky games, crowds thin"}],"ev":[{"s":"09-11","e":"09-11","label":"Montana State vs Drake"},{"s":"09-18","e":"09-18","label":"Montana State vs Tennessee Tech"},{"s":"09-25","e":"11-13","label":"MSU Big Sky home games","est":1,"tba":1},{"s":"10-23","e":"11-28","label":"MT general rifle season","est":1},{"s":"11-20","e":"11-20","label":"Brawl of the Wild (likely at Missoula)","est":1}],"pricey":[{"s":"09-10","e":"09-12","label":"MSU home game weekend","why":"Small town; game weekends fill hotels quickly"},{"s":"09-17","e":"09-19","label":"MSU home game weekend","why":"Small hotel stock books early"},{"s":"09-25","e":"11-13","label":"MSU Homecoming / Big Sky homes","why":"Homecoming weekend sells out Bozeman","est":1,"tba":1}],"games":[]},
+  myrtle: {"wx":{"sep":[83,68,11],"oct":[76,56,9],"nov":[66,46,9]},"hur":"high","wxnote":"Peak hurricane season in Sept; risk drops by late Oct","best":[{"s":"10-11","e":"11-07","why":"Prime golf weather, fall tee-time deals, ocean still warm"},{"s":"09-13","e":"09-30","why":"Post-summer discounts; hot, but peak hurricane risk"}],"ev":[{"s":"09-15","e":"11-15","label":"Fall golf season (100+ courses)","est":1},{"s":"09-01","e":"09-03","label":"World Am Handicap Championship","est":1},{"s":"09-04","e":"11-27","label":"Coastal Carolina home games (Conway)","est":1},{"s":"10-06","e":"10-10","label":"Myrtle Beach Fall Bike Rally","est":1}],"pricey":[{"s":"09-01","e":"09-06","label":"World Am + Labor Day","why":"3,000 golfers and holiday; tee times scarce","est":1},{"s":"10-08","e":"11-07","label":"Peak fall golf weekends","why":"Golf-package prices top out; book early","est":1}],"games":[]},
+  lubbock: {"wx":{"sep":[85,60,6],"oct":[76,48,6],"nov":[64,36,4]},"hur":"none","wxnote":"Dry and windy; big day-night swings; cold fronts by Nov","best":[{"s":"09-17","e":"09-19","why":"Tech home game, warm, cheapest home weekend"},{"s":"10-08","e":"10-31","why":"Cooler weather, Big 12 home games (dates TBA)"}],"ev":[{"s":"09-04","e":"09-04","label":"Texas Tech vs Arkansas-Pine Bluff"},{"s":"09-18","e":"09-18","label":"Texas Tech vs New Mexico"},{"s":"09-25","e":"11-27","label":"Tech home: Utah, Baylor, Iowa St","est":1,"tba":1},{"s":"09-01","e":"11-15","label":"Lubbock-area winery harvest season","est":1}],"pricey":[{"s":"09-25","e":"11-27","label":"Tech Big 12 home weekends","why":"Few hotels; home games fill Lubbock","est":1,"tba":1},{"s":"09-25","e":"11-27","label":"Texas Tech Homecoming","why":"Biggest Lubbock weekend; book early","est":1,"tba":1}],"games":[{"s":null,"label":"K-State at Texas Tech","est":false}]},
+  tucson: {"wx":{"sep":[95,70,4],"oct":[86,59,3],"nov":[75,48,3]},"hur":"none","wxnote":"Hot Sept with late monsoon storms; ideal Oct–Nov","best":[{"s":"10-22","e":"11-14","why":"80s and sunny, desert golf opens up, Wildcat home games"},{"s":"11-15","e":"11-21","why":"Pre-Thanksgiving value, ideal golf weather, El Tour weekend"}],"ev":[{"s":"09-11","e":"09-11","label":"Arizona vs BYU (conflicting reports)","est":1},{"s":"09-18","e":"11-27","label":"UA home: Colorado, Houston, UCF","est":1,"tba":1},{"s":"10-08","e":"10-10","label":"Tucson Meet Yourself","est":1},{"s":"11-07","e":"11-07","label":"All Souls Procession","est":1},{"s":"11-20","e":"11-20","label":"El Tour de Tucson","est":1}],"pricey":[{"s":"10-01","e":"11-27","label":"UA Homecoming","why":"Campus-area hotels sell out","est":1,"tba":1},{"s":"11-19","e":"11-21","label":"El Tour de Tucson","why":"9k cyclists; resort rates climb","est":1},{"s":"11-01","e":"11-30","label":"Golf high season starts","why":"Overseeded courses reopen; green fees jump","est":1}],"games":[{"s":null,"label":"K-State at Arizona","est":false}]},
+  orlando: {"wx":{"sep":[90,72,14],"oct":[85,66,8],"nov":[78,58,6]},"hur":"high","wxnote":"Daily Sept storms, peak hurricane risk; drier, pleasant November","best":[{"s":"09-07","e":"09-30","why":"Lowest park crowds, Halloween Horror Nights, UCF home"},{"s":"11-01","e":"11-18","why":"Dry, cooler, pre-Thanksgiving crowds, good golf"}],"ev":[{"s":"09-03","e":"11-01","label":"Halloween Horror Nights (Universal)","est":1},{"s":"09-11","e":"09-11","label":"UCF vs UT Martin"},{"s":"09-18","e":"11-27","label":"UCF Big 12 home games","est":1,"tba":1},{"s":"09-01","e":"11-20","label":"EPCOT Food & Wine Festival","est":1},{"s":"10-20","e":"11-30","label":"Magic NBA home season","est":1}],"pricey":[{"s":"10-08","e":"10-31","label":"Halloween/fall-break weekends","why":"HHN sellouts; park crowds and rates peak","est":1},{"s":"11-20","e":"11-28","label":"Thanksgiving week","why":"Holiday crowds; park and hotel rates spike","est":1}],"games":[{"s":null,"label":"K-State at UCF","est":false}]},
+  lincoln: {"wx":{"sep":[80,54,7],"oct":[67,41,7],"nov":[52,28,5]},"hur":"none","wxnote":"Warm Sept; frosty mornings by mid-Oct; cold November","best":[{"s":"09-03","e":"09-05","why":"Husker home game, warm, Labor Day weekend"},{"s":"09-17","e":"09-19","why":"Cheaper non-conference game, short drive from KC"}],"ev":[{"s":"09-04","e":"09-04","label":"Nebraska vs Northern Illinois"},{"s":"09-11","e":"09-11","label":"Nebraska Big Ten home game","est":1},{"s":"09-18","e":"09-18","label":"Nebraska vs Northern Iowa"},{"s":"09-25","e":"11-27","label":"Remaining Big Ten home games","est":1,"tba":1}],"pricey":[{"s":"09-10","e":"09-12","label":"Husker Big Ten home opener","why":"Reduced stadium capacity; scarce tickets and rooms","est":1},{"s":"09-25","e":"11-27","label":"Big Ten home weekends","why":"Lincoln hotels 2-3x on game days","est":1,"tba":1}],"games":[]},
+  pittsburgh: {"wx":{"sep":[75,55,10],"oct":[63,44,11],"nov":[51,34,12]},"hur":"some","wxnote":"Pleasant Sept; foliage mid-Oct; gray, damp November","best":[{"s":"09-10","e":"09-12","why":"Pitt home game, Steelers early season, warm"},{"s":"10-08","e":"10-24","why":"Peak foliage, Steelers/Pitt/Penguins all in season"}],"ev":[{"s":"09-09","e":"11-30","label":"Steelers home games","est":1,"tba":1},{"s":"09-11","e":"09-11","label":"Pitt vs Western Michigan (Acrisure)"},{"s":"10-30","e":"10-30","label":"Pitt vs UConn (Acrisure)"},{"s":"09-18","e":"11-27","label":"Pitt ACC home games","est":1,"tba":1},{"s":"10-08","e":"11-30","label":"Penguins home season","est":1}],"pricey":[{"s":"09-09","e":"11-30","label":"Steelers primetime/rival homes","why":"Ravens/Browns games fill downtown hotels","est":1,"tba":1},{"s":"10-08","e":"10-24","label":"Peak foliage weekends","why":"Leaf peepers and games share hotel stock","est":1}],"games":[]},
+  greenbay: {"wx":{"sep":[72,50,10],"oct":[58,40,10],"nov":[44,29,10]},"hur":"none","wxnote":"Cold by late Oct; November near freezing, snow possible","best":[{"s":"09-17","e":"10-10","why":"Mild Lambeau games; Brewers finish Sept 26; best Wisconsin weather"},{"s":"11-05","e":"11-21","why":"Classic cold Lambeau atmosphere; Bucks season underway; pre-Thanksgiving rates"}],"ev":[{"s":"09-12","e":"11-28","label":"Packers home games","est":1,"tba":1},{"s":"09-12","e":"11-28","label":"Proj. Lambeau: CHI/DET/MIN/LAR/SEA","est":1,"tba":1},{"s":"09-01","e":"09-26","label":"Brewers stretch run (MLB ends 9/26)"},{"s":"09-04","e":"11-27","label":"Badgers football, Camp Randall (Madison)","est":1},{"s":"10-19","e":"10-27","label":"Bucks home opener","est":1}],"pricey":[{"s":"09-12","e":"11-28","label":"Every Packers home weekend","why":"Green Bay hotels 2-4x with minimum stays; book on schedule release","est":1,"tba":1}],"games":[]},
+  stlouis: {"wx":{"sep":[81,61,7],"oct":[69,49,9],"nov":[56,37,9]},"hur":"none","wxnote":"Warm Sept; ideal October; early cold snaps possible in Nov","best":[{"s":"09-17","e":"09-26","why":"Cardinals final homestand, balloon race, warm evenings"},{"s":"10-01","e":"10-24","why":"Blues opener, fall color, cheap downtown hotels"}],"ev":[{"s":"09-20","e":"09-26","label":"Cardinals final homestand vs MIL, PIT"},{"s":"09-17","e":"09-18","label":"Great Forest Park Balloon Race","est":1},{"s":"09-01","e":"10-17","label":"St. Louis CITY SC home matches","est":1},{"s":"10-01","e":"10-10","label":"Blues home opener","est":1}],"pricey":[{"s":"09-24","e":"09-26","label":"Cardinals final weekend","why":"Season-finale crowds; moderate spike if in playoff race"}],"games":[]},
+  charleston: {"wx":{"sep":[85,68,10],"oct":[78,58,7],"nov":[69,47,7]},"hur":"high","wxnote":"Peak hurricane season in Sept; risk drops by late Oct","best":[{"s":"10-11","e":"10-30","why":"Dry 70s, prime golf, past hurricane peak, oysters returning"},{"s":"11-01","e":"11-14","why":"Cooler, quieter, lower Kiawah/Wild Dunes golf rates"}],"ev":[{"s":"09-08","e":"09-19","label":"Charleston Restaurant Week (fall)","est":1},{"s":"09-23","e":"10-03","label":"MOJA Arts Festival","est":1},{"s":"10-01","e":"10-31","label":"Preservation Society Fall Tours","est":1},{"s":"10-08","e":"10-09","label":"Riverfront Revival (Darius Rucker fest)","est":1},{"s":"11-12","e":"11-14","label":"Food & Wine Classic Charleston","est":1}],"pricey":[{"s":"09-03","e":"09-06","label":"Labor Day weekend","why":"Last beach holiday; Kiawah/IOP rentals at peak"},{"s":"10-01","e":"10-31","label":"October weekends","why":"Peak wedding/tour season; downtown hotels highest of year","est":1}],"games":[]},
+  savannah: {"wx":{"sep":[86,69,10],"oct":[79,59,7],"nov":[70,48,7]},"hur":"high","wxnote":"Humid Sept at peak storm season; pleasant late Oct–Nov","best":[{"s":"10-20","e":"10-31","why":"Peak ghost-tour season, Film Fest, Halloween on River Street"},{"s":"11-03","e":"11-14","why":"Cooler, cheaper after Halloween; tours still running"}],"ev":[{"s":"09-17","e":"09-19","label":"Savannah Jazz Festival (Forsyth Park)","est":1},{"s":"10-01","e":"10-03","label":"Oktoberfest on the River","est":1},{"s":"10-07","e":"10-10","label":"Tybee Pirate Fest","est":1},{"s":"10-23","e":"10-30","label":"SCAD Savannah Film Festival","est":1},{"s":"10-29","e":"10-31","label":"Halloween weekend, River St/ghost tours","est":1}],"pricey":[{"s":"10-29","e":"10-31","label":"Halloween weekend","why":"Biggest ghost-tour demand; historic district sells out","est":1},{"s":"10-23","e":"10-30","label":"SCAD Film Fest week","why":"Industry crowds fill downtown hotels","est":1}],"games":[]},
+  memphis: {"wx":{"sep":[86,66,7],"oct":[75,54,8],"nov":[63,43,9]},"hur":"some","wxnote":"Hot early Sept; comfortable October; Gulf remnants occasionally","best":[{"s":"09-17","e":"09-19","why":"Tigers vs Southern Miss plus Cooper-Young Fest weekend"},{"s":"10-22","e":"11-07","why":"Grizzlies season starts, AAC football, 70s weather"}],"ev":[{"s":"09-04","e":"09-04","label":"Memphis Tigers vs Toledo"},{"s":"09-11","e":"09-11","label":"Southern Heritage Classic (HBCU)","est":1},{"s":"09-18","e":"09-18","label":"Memphis Tigers vs Southern Miss"},{"s":"09-18","e":"09-18","label":"Cooper-Young Festival","est":1},{"s":"10-20","e":"10-27","label":"Grizzlies home opener","est":1}],"pricey":[{"s":"09-10","e":"09-12","label":"Southern Heritage Classic weekend","why":"Huge HBCU crowds; downtown hotels spike","est":1}],"games":[]},
+  sandiego: {"wx":{"sep":[77,66,1],"oct":[75,62,2],"nov":[71,55,4]},"hur":"none","wxnote":"Warm and dry; Santa Ana heat spells possible; rain starts Nov","best":[{"s":"09-13","e":"10-10","why":"Warmest ocean, tuna bite, SDSU, airshow, post-summer rates"},{"s":"10-25","e":"11-14","why":"Still 70s, cheaper, Fleet Week, easy Torrey tee times"}],"ev":[{"s":"09-11","e":"09-11","label":"SDSU vs Missouri at Snapdragon"},{"s":"09-01","e":"09-26","label":"Padres stretch run (MLB ends 9/26)"},{"s":"09-24","e":"09-26","label":"MCAS Miramar Air Show","est":1},{"s":"09-01","e":"10-31","label":"Fall offshore tuna/yellowtail season","est":1},{"s":"11-05","e":"11-14","label":"Fleet Week San Diego","est":1}],"pricey":[{"s":"09-03","e":"09-06","label":"Labor Day weekend","why":"Peak beach-hotel demand before rates drop"},{"s":"09-24","e":"09-26","label":"Miramar Air Show weekend","why":"Large crowds; north-county hotels fill","est":1}],"games":[]},
+  tahoe: {"wx":{"sep":[73,35,2],"oct":[62,29,5],"nov":[51,23,8]},"hur":"none","wxnote":"Freezing nights by Oct; first snow possible late Oct","best":[{"s":"09-07","e":"09-30","why":"Post-Labor Day calm, warm lake, golf open, lower rates"},{"s":"10-03","e":"10-17","why":"Peak aspen color, Oktoberfest, quiet shoulder-season prices"}],"ev":[{"s":"09-09","e":"09-12","label":"Great Reno Balloon Race (Reno)","est":1},{"s":"09-18","e":"09-18","label":"Tahoe City Oktoberfest","est":1},{"s":"10-02","e":"10-03","label":"Camp Richardson Oktoberfest","est":1},{"s":"10-01","e":"10-20","label":"Fall color peak (Hope Valley)","est":1},{"s":"11-19","e":"11-26","label":"Ski resorts opening (Heavenly etc.)","est":1}],"pricey":[{"s":"09-03","e":"09-07","label":"Labor Day + Burning Man exodus","why":"Last summer holiday; I-80/US-50 jammed, rates peak","est":1},{"s":"11-22","e":"11-28","label":"Thanksgiving week","why":"Ski-opening crowds push lodging up","est":1}],"games":[]},
+  jackson: {"wx":{"sep":[68,33,8],"oct":[55,25,9],"nov":[38,16,10]},"hur":"none","wxnote":"Peak aspen color late Sept; snow likely by November","best":[{"s":"09-19","e":"10-03","why":"Elk bugling, peak aspens, lodges open, Fall Arts crowds gone"},{"s":"10-04","e":"10-15","why":"Shoulder rates; rut and color linger; some closures"}],"ev":[{"s":"09-08","e":"09-19","label":"Jackson Hole Fall Arts Festival","est":1},{"s":"09-15","e":"10-10","label":"Elk rut peak (Grand Teton NP)","est":1},{"s":"09-20","e":"10-05","label":"Fall color peak","est":1},{"s":"11-01","e":"11-30","label":"Teton Park Road closed to cars","est":1},{"s":"11-25","e":"11-28","label":"JH Mountain Resort opening","est":1}],"pricey":[{"s":"09-03","e":"09-06","label":"Labor Day weekend","why":"Last summer peak; town and park lodging full"},{"s":"09-10","e":"09-19","label":"Fall Arts Festival weekends","why":"Gallery crowds; rates stay near summer levels","est":1}],"games":[]},
+  parkcity: {"wx":{"sep":[69,43,6],"oct":[56,33,9],"nov":[42,23,9]},"hur":"none","wxnote":"Golden aspens late Sept; first snow possible by late Oct","best":[{"s":"09-17","e":"10-03","why":"Peak fall color, Utah/BYU home games, Wine Festival, cheap lodging"}],"ev":[{"s":"09-04","e":"09-04","label":"BYU vs Weber State (Provo)"},{"s":"09-11","e":"09-11","label":"Utah vs Wyoming (date unsettled)","est":1},{"s":"09-18","e":"11-27","label":"Utah & BYU Big 12 home games","est":1,"tba":1},{"s":"09-30","e":"10-02","label":"Park City Wine Festival (fall)","est":1},{"s":"11-19","e":"11-26","label":"Park City Mountain opening","est":1}],"pricey":[{"s":"09-03","e":"09-06","label":"Labor Day / Miners Day","why":"Busiest late-summer weekend on Main Street","est":1},{"s":"11-24","e":"11-28","label":"Thanksgiving / ski opening","why":"Ski-season rates begin","est":1}],"games":[]},
+  boise: {"wx":{"sep":[80,53,4],"oct":[65,42,6],"nov":[49,32,10]},"hur":"none","wxnote":"Dry, sunny Sept; cools in Oct; wetter, chilly November","best":[{"s":"09-09","e":"09-12","why":"USF at Albertsons; warm, sunny; golf and floats"},{"s":"10-01","e":"10-23","why":"Fall colors, Mountain West home games, mild 60s"}],"ev":[{"s":"09-01","e":"09-05","label":"Spirit of Boise Balloon Classic","est":1},{"s":"09-11","e":"09-11","label":"Boise State vs USF (Albertsons)"},{"s":"09-18","e":"11-27","label":"Boise St Mountain West home games","est":1,"tba":1},{"s":"10-15","e":"10-23","label":"Idaho Steelheads home opener","est":1}],"pricey":[{"s":"09-10","e":"09-12","label":"Boise State vs USF weekend","why":"Home-game weekends fill Boise hotels"},{"s":"09-18","e":"11-27","label":"Other Bronco home weekends","why":"Same spike every home Saturday","est":1,"tba":1}],"games":[]},
+  seattle: {"wx":{"sep":[72,54,8],"oct":[61,47,14],"nov":[52,41,18]},"hur":"none","wxnote":"Dry Sept; rainy season starts mid-Oct; November very wet","best":[{"s":"09-10","e":"09-19","why":"Mariners final homestand plus Husky football; dry, sunny weather"},{"s":"09-24","e":"10-10","why":"Seahawks/Huskies weekends, Kraken opener, still mostly dry"}],"ev":[{"s":"09-11","e":"09-11","label":"Huskies vs Portland State"},{"s":"09-13","e":"09-19","label":"Mariners final homestand (TEX, TOR)"},{"s":"09-12","e":"11-28","label":"Seahawks home (SF/LAR/BAL/DET...)","est":1,"tba":1},{"s":"09-25","e":"11-27","label":"UW Big Ten home: ORE, USC, NEB","est":1,"tba":1},{"s":"10-01","e":"10-10","label":"Kraken home opener","est":1}],"pricey":[{"s":"09-03","e":"09-06","label":"Bumbershoot / Labor Day","why":"Festival plus cruise-season crowds; downtown peaks","est":1},{"s":"09-12","e":"11-28","label":"Seahawks + Huskies same weekend","why":"Doubleheader weekends spike downtown rates; check May schedule","est":1,"tba":1}],"games":[]},
+  napa: {"wx":{"sep":[80,51,1],"oct":[75,46,3],"nov":[65,40,7]},"hur":"none","wxnote":"Harvest season, dry and warm; wildfire smoke risk Sept–Oct","best":[{"s":"11-01","e":"11-20","why":"Golden vineyards after harvest, Film Fest, much lower rates"},{"s":"09-07","e":"09-16","why":"Crush underway, warm, before October peak pricing; go midweek"}],"ev":[{"s":"09-01","e":"10-31","label":"Harvest/crush season","est":1},{"s":"09-12","e":"09-12","label":"Harvest Table, Lincoln Ave (Calistoga)","est":1},{"s":"10-09","e":"10-10","label":"Sonoma County Harvest Fair","est":1},{"s":"10-15","e":"10-15","label":"V. Sattui Crush Party (grape stomp)","est":1},{"s":"11-11","e":"11-14","label":"Napa Valley Film Festival","est":1}],"pricey":[{"s":"09-10","e":"10-31","label":"Harvest weekends","why":"Peak season; 2-night minimums, highest rates of year","est":1},{"s":"09-03","e":"09-06","label":"Labor Day weekend","why":"Holiday plus harvest kickoff"}],"games":[]},
+  keywest: {"wx":{"sep":[89,79,16],"oct":[86,77,12],"nov":[81,72,6]},"hur":"high","wxnote":"Peak hurricane season Sept–Oct; drier, breezy November","best":[{"s":"11-07","e":"11-20","why":"After Fantasy Fest: drier, cooler, powerboat races, saner rates"},{"s":"10-22","e":"10-26","why":"Fantasy Fest opening days; wild nightlife; book very early"}],"ev":[{"s":"10-22","e":"10-31","label":"Fantasy Fest"},{"s":"10-22","e":"10-24","label":"Goombay Festival (Bahama Village)","est":1},{"s":"10-30","e":"10-30","label":"Fantasy Fest Parade (Duval St)","est":1},{"s":"11-07","e":"11-14","label":"Key West Powerboat World Championship","est":1}],"pricey":[{"s":"10-22","e":"10-31","label":"Fantasy Fest","why":"Rates triple; multi-night minimums; sells out months ahead"},{"s":"11-07","e":"11-14","label":"Powerboat Worlds week","why":"Race teams and spectators fill island hotels","est":1}],"games":[]},
+  gulfshores: {"wx":{"sep":[86,75,9],"oct":[78,66,6],"nov":[69,56,7]},"hur":"high","wxnote":"Peak hurricane season in Sept; risk drops by late Oct","best":[{"s":"09-12","e":"10-03","why":"Post-Labor Day rates, warm Gulf, strong fall fishing"},{"s":"11-04","e":"11-14","why":"Frank Brown Songwriters Fest at Flora-Bama; cheapest rates"}],"ev":[{"s":"09-15","e":"11-15","label":"Fall inshore run (bull reds, specks)","est":1},{"s":"10-07","e":"10-10","label":"National Shrimp Festival"},{"s":"11-04","e":"11-14","label":"Frank Brown Songwriters' Festival","est":1}],"pricey":[{"s":"09-03","e":"09-06","label":"Labor Day weekend","why":"Last summer peak on the beach"},{"s":"10-07","e":"10-10","label":"National Shrimp Festival","why":"About 300K visitors; beach lodging sells out"},{"s":"11-24","e":"11-28","label":"Thanksgiving week","why":"Family rentals spike","est":1}],"games":[]},
+  ozarks: {"wx":{"sep":[81,59,7],"oct":[70,47,9],"nov":[57,36,9]},"hur":"none","wxnote":"Warm lake days in Sept; colorful October; cool November","best":[{"s":"09-07","e":"09-14","why":"Warm water, bars and marinas open, before Bikefest crowds"},{"s":"10-09","e":"10-23","why":"Leaf color, cool golf weather, cheapest rates (some bars closed)"}],"ev":[{"s":"09-15","e":"09-19","label":"Lake of the Ozarks Bikefest","est":1},{"s":"10-02","e":"10-03","label":"Old Tyme Apple Festival (Versailles)","est":1},{"s":"10-02","e":"10-03","label":"Fall Big Bass Bash","est":1},{"s":"10-09","e":"10-09","label":"Fall Harbor Hop boat poker run","est":1}],"pricey":[{"s":"09-03","e":"09-06","label":"Labor Day weekend","why":"Last big boating weekend; lake lodging full"},{"s":"09-15","e":"09-19","label":"Bikefest","why":"Tens of thousands of riders; Bagnell Dam Strip lodging sells out","est":1}],"games":[]}
+};
+const $ = (id) => document.getElementById(id);
+const store = {
+  get() { try { return JSON.parse(localStorage.getItem('tripfinder') || 'null'); } catch (e) { return null; } },
+  set(v) { try { localStorage.setItem('tripfinder', JSON.stringify(v)); } catch (e) {} }
+};
+let state = { name: '', answers: [], tune: null };
+let qi = 0;
+let scored = [];
+let wildcats = false;
+
+function show(id) {
+  ['welcome', 'quiz', 'results', 'compare'].forEach(s => { $(s).hidden = s !== id; });
+  $('reset-btn').hidden = id === 'welcome' && !store.get();
+  window.scrollTo(0, 0);
+}
+
+function rawWeights() {
+  const pts = { w: BASE, n: BASE, o: BASE, s: BASE, l: BASE };
+  state.answers.forEach((a, i) => {
+    const q = QUESTIONS[i];
+    if (!q || !a) return;
+    const p = (a === 'a' ? q.a : q.b)[1];
+    Object.keys(p).forEach(k => { pts[k] += p[k]; });
+  });
+  return pts;
+}
+function weights() {
+  const r = state.tune || rawWeights();
+  const sum = CATS.reduce((t, c) => t + Number(r[c.k]), 0) || 1;
+  const w = {};
+  CATS.forEach(c => { w[c.k] = Number(r[c.k]) / sum; });
+  return w;
+}
+function gradeOf(m) {
+  if (m >= 90) return ['A+', 'a'];
+  if (m >= 85) return ['A', 'a'];
+  if (m >= 80) return ['A-', 'a'];
+  if (m >= 75) return ['B+', 'b'];
+  if (m >= 70) return ['B', 'b'];
+  if (m >= 65) return ['B-', 'b'];
+  if (m >= 60) return ['C+', 'c'];
+  if (m >= 55) return ['C', 'c'];
+  return ['D', 'd'];
+}
+function score() {
+  const w = weights();
+  wildcats = state.answers[5] === 'a';
+  scored = DEST.map(d => {
+    const parts = CATS.map(c => w[c.k] * d[c.k] / 5 * 100);
+    const base = parts.reduce((a, b) => a + b, 0);
+    const bonus = wildcats && d.ks ? 5 : 0;
+    const match = Math.min(100, Math.round(base + bonus));
+    const [g, band] = gradeOf(match);
+    return { d, parts, bonus, match, grade: g, band };
+  }).sort((a, b) => b.match - a.match || b.d.l - a.d.l);
+  scored.forEach((r, i) => { r.rank = i + 1; });
+  return w;
+}
+
+function whyLine(r, w) {
+  const pri = CATS.slice().sort((a, b) => w[b.k] - w[a.k]);
+  const strong = pri.filter(c => r.d[c.k] >= 4).slice(0, 2);
+  const top2 = pri.slice(0, 2);
+  const lower = (c) => c.label.toLowerCase();
+  let s;
+  if (strong.length && top2.some(c => r.d[c.k] >= 4)) {
+    const hits = top2.filter(c => r.d[c.k] >= 4);
+    s = hits.length === 2
+      ? `Strong on ${lower(hits[0])} and ${lower(hits[1])}, your two biggest priorities.`
+      : `Strong on ${lower(hits[0])}, one of your two biggest priorities.`;
+  } else if (strong.length) {
+    s = `Strong on ${strong.map(lower).join(' and ')}, but weaker on what you care about most.`;
+  } else {
+    s = 'No real standout for your priorities.';
+  }
+  const weak = pri.slice(0, 3).find(c => r.d[c.k] <= 2);
+  if (weak) s += ` Weak spot: ${lower(weak)} (${r.d[weak.k]} of 5).`;
+  if (r.bonus) s += ' Bonus: a K-State road game.';
+  return s;
+}
+
+function el(tag, attrs, kids) {
+  const e = document.createElement(tag);
+  if (attrs) Object.keys(attrs).forEach(k => {
+    if (k === 'text') e.textContent = attrs[k];
+    else if (k === 'class') e.className = attrs[k];
+    else if (k === 'style') e.setAttribute('style', attrs[k]);
+    else e.setAttribute(k, attrs[k]);
+  });
+  (kids || []).forEach(c => c && e.appendChild(c));
+  return e;
+}
+function pill(r) {
+  return el('span', { class: 'grade' }, [
+    el('span', { class: 'pill g' + r.band, text: r.grade }),
+    el('small', { text: r.match + '%' })
+  ]);
+}
+const txt = (s) => document.createTextNode(s);
+const byId = (id) => scored.find(r => r.d.id === id);
+function pips(v, color) {
+  return el('div', { class: 'pips', 'aria-hidden': 'true' }, [1, 2, 3, 4, 5].map(i =>
+    el('i', i <= v ? { style: 'background:' + color } : {})));
+}
+// full = the bottom sheet (adds star, calendar, weather); the hover tooltip stays compact
+function cardFor(r, w, titleId, full) {
+  const d = r.d;
+  const head = el('div', { class: 'top' }, [
+    el('div', {}, [
+      el('h3', titleId ? { id: titleId, text: d.name } : { text: d.name }),
+      el('p', { class: 'vibe', text: d.vibe })
+    ]),
+    el('div', { class: 'right' }, [pill(r), full ? starBtn(d.id, d.name) : null])
+  ]);
+  const scores = el('div', { class: 'scores' }, CATS.map(c => el('div', { class: 'score' }, [
+    el('span', {}, [el('span', { class: 'sw', style: 'background:' + c.color }), txt(c.label)]),
+    pips(d[c.k], c.color),
+    el('span', { class: 'v', text: String(d[c.k]) })
+  ])));
+  const facts = el('dl', { class: 'facts' }, [
+    ['Best window', d.win], ['Highs / lows', wxShort(d)], ['From KC', d.kc], ['From SA', d.sa], ['Headline', d.ev], ['Watch out', d.wo]
+  ].flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { text: v })]));
+  const kids = [head, el('p', { class: 'why', text: whyLine(r, w) }), scores, facts];
+  if (full) {
+    kids.push(el('h4', { text: 'Fall 2027 calendar' }), calStrip(d.id, { list: true, key: true }));
+    const wx = wxBlock(d.id);
+    if (wx) kids.push(el('h4', { text: 'Fall weather' }), wx);
+  }
+  return el('div', { class: 'card' }, kids);
+}
+
+/* Fall calendar (Sept 1 - Nov 30, 2027). Dates are 'MM-DD'; est = projected from past years. */
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const WDAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYS = 91;
+const TYPE_LABEL = { best: 'Best weeks', ev: 'Event', gm: 'K-State game', pricey: 'Pricey' };
+function dayIdx(md) { const [m, d] = md.split('-').map(Number); return (m === 9 ? 0 : m === 10 ? 30 : 61) + d - 1; }
+function fmtDay(md, wd) {
+  const [m, d] = md.split('-').map(Number);
+  return (wd ? WDAY[new Date(2027, m - 1, d).getDay()] + ', ' : '') + MON[m - 1] + ' ' + d;
+}
+function fmtRange(a, b) {
+  if (!b || a === b) return fmtDay(a, true);
+  const [m1] = a.split('-'), [m2, d2] = b.split('-');
+  return fmtDay(a) + '–' + (m1 === m2 ? Number(d2) : fmtDay(b));
+}
+const pct = (i) => (i / DAYS * 100).toFixed(2) + '%';
+function calItems(id) {
+  const f = FALL[id] || {};
+  const items = [];
+  (f.best || []).forEach(x => items.push({ t: 'best', s: x.s, e: x.e, label: x.why }));
+  (f.games || []).forEach(x => items.push({ t: 'gm', s: x.s, e: x.s, label: x.label, est: x.est }));
+  (f.ev || []).forEach(x => items.push({ t: 'ev', s: x.s, e: x.e, label: x.label, est: x.est, tba: x.tba }));
+  (f.pricey || []).forEach(x => items.push({ t: 'pricey', s: x.s, e: x.e, label: x.label, why: x.why, est: x.est, tba: x.tba }));
+  return items;
+}
+// tba items span the season as a placeholder: list them, but never draw them on the strip
+function whenText(x) {
+  if (!x.s) return 'Date TBA';
+  if (x.tba) {
+    const m1 = MON[Number(x.s.slice(0, 2)) - 1], m2 = MON[Number(x.e.slice(0, 2)) - 1];
+    return (m1 === m2 ? m1 : m1 + '–' + m2) + ', dates TBA';
+  }
+  return fmtRange(x.s, x.e);
+}
+function calKey() {
+  return el('div', { class: 'cal-key', 'aria-hidden': 'true' }, [
+    ['k-best', 'Best weeks'], ['k-pricey', 'Pricey, book early'], ['k-ev', 'Event (thin line = season or festival run)'], ['k-gm', 'K-State game'], ['k-wk', 'Weekend']
+  ].map(([k, t]) => el('span', {}, [el('i', { class: k }), txt(t)])));
+}
+const byDate = (a, b) => ((a.s && !a.tba) ? dayIdx(a.s) : 999) - ((b.s && !b.tba) ? dayIdx(b.s) : 999);
+function calStrip(id, opts) {
+  opts = opts || {};
+  let items = calItems(id);
+  if (!items.length) return el('p', { class: 'wxnote', text: 'Calendar research is still to come for this place.' });
+  const track = el('div', { class: 'cal-track', 'aria-hidden': 'true' });
+  for (let i = 0; i < DAYS; i++) {
+    if (new Date(2027, 8, 1 + i).getDay() === 6) track.appendChild(el('span', { class: 'wk', style: `left:${pct(i)};width:${pct(2)}` }));
+  }
+  [30, 61].forEach(i => track.appendChild(el('span', { class: 'mo', style: 'left:' + pct(i) })));
+  items.slice().sort((a, b) => (a.t === 'gm') - (b.t === 'gm')).forEach(x => {
+    if (!x.s || x.tba) return;
+    const a = dayIdx(x.s), b = dayIdx(x.e || x.s);
+    if (x.t === 'best' || x.t === 'pricey') track.appendChild(el('span', { class: x.t, style: `left:${pct(a)};width:max(4px, ${pct(b - a + 1)})` }));
+    else if (b - a > 3) track.appendChild(el('span', { class: 'evspan', style: `left:${pct(a)};width:${pct(b - a + 1)}` }));
+    else track.appendChild(el('span', { class: x.t, style: `left:${pct((a + b + 1) / 2)}` }));
+  });
+  const kids = [track, el('div', { class: 'cal-months', 'aria-hidden': 'true' }, ['Sep', 'Oct', 'Nov'].map(t => el('span', { text: t })))];
+  if (opts.key) kids.push(calKey());
+  if (opts.list) {
+    if (opts.max) {
+      const rank = { gm: 0, best: 1, pricey: 2, ev: 3 };
+      items = items.slice().sort((a, b) => rank[a.t] - rank[b.t]).slice(0, opts.max);
+    }
+    kids.push(el('ul', { class: 'cal-list' }, items.sort(byDate).map(x => el('li', { class: 't-' + x.t }, [
+      el('i', { 'aria-hidden': 'true' }),
+      el('span', { class: 'dt', text: whenText(x) }),
+      el('span', {}, [
+        el('span', { class: 'visually-hidden', text: TYPE_LABEL[x.t] + ': ' }),
+        x.t === 'best' ? el('b', { text: 'Best weeks' + (opts.short ? '' : '. ') }) : x.t === 'pricey' ? el('b', { text: 'Pricey. ' }) : null,
+        txt(opts.short ? (x.t === 'best' ? '' : x.label) : x.label + (x.why ? ': ' + x.why : '')),
+        x.est ? el('span', { class: 'est', text: 'est.', title: 'Projected from past years; not yet announced for 2027' }) : null
+      ])
+    ]))));
+  }
+  return el('div', { class: 'cal' }, kids);
+}
+
+/* Weather */
+const HUR = { high: 'Hurricane risk: high', some: 'Hurricane risk: some', none: 'No hurricane risk' };
+function wxShort(d) {
+  const x = (FALL[d.id] || {}).wx;
+  if (!x) return 'Typical high ' + d.hi + '°F';
+  return ['sep', 'oct', 'nov'].map((m, i) => `${['Sep', 'Oct', 'Nov'][i]} ${x[m][0]}°/${x[m][1]}°`).join(' · ');
+}
+function wxBlock(id) {
+  const f = FALL[id];
+  if (!f || !f.wx) return null;
+  const tbl = el('table', { class: 'wx' }, [
+    el('thead', {}, [el('tr', {}, ['', 'High', 'Low', 'Rainy days'].map(t => el('th', { scope: 'col', text: t })))]),
+    el('tbody', {}, [['Sep', 'sep'], ['Oct', 'oct'], ['Nov', 'nov']].map(([m, k]) => el('tr', {}, [
+      el('th', { scope: 'row', text: m }), el('td', { text: f.wx[k][0] + '°' }), el('td', { text: f.wx[k][1] + '°' }), el('td', { text: String(f.wx[k][2]) })
+    ])))
+  ]);
+  return el('div', { style: 'display:grid;gap:8px' }, [tbl, el('p', { class: 'wxnote' }, [el('span', { class: 'hur ' + f.hur, text: HUR[f.hur] }), txt(' ' + (f.wxnote || ''))])]);
+}
+
+/* Stars + finalists */
+const MAXSTARS = 5;
+let cmpSel = [];
+const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>';
+function stars() { if (!Array.isArray(state.stars)) state.stars = []; return state.stars; }
+function starLabel(id, name) { return (stars().includes(id) ? 'Remove ' : 'Add ') + name + (stars().includes(id) ? ' from finalists' : ' to finalists'); }
+function starBtn(id, name) {
+  const b = el('button', { class: 'star', type: 'button', 'data-star': id, 'data-name': name, 'aria-pressed': String(stars().includes(id)), 'aria-label': starLabel(id, name) });
+  b.innerHTML = STAR_SVG;
+  b.addEventListener('click', () => toggleStar(id));
+  return b;
+}
+function toggleStar(id) {
+  const s = stars();
+  if (s.includes(id)) { s.splice(s.indexOf(id), 1); cmpSel = cmpSel.filter(x => x !== id); }
+  else if (s.length >= MAXSTARS) { flash(`You can star up to ${MAXSTARS} places. Remove one first.`); return; }
+  else { s.push(id); if (cmpSel.length < 3) cmpSel.push(id); flash(byId(id).d.name + ' added to finalists'); }
+  store.set(state);
+  document.querySelectorAll('[data-star]').forEach(b => {
+    b.setAttribute('aria-pressed', String(s.includes(b.dataset.star)));
+    b.setAttribute('aria-label', starLabel(b.dataset.star, b.dataset.name));
+  });
+  renderFinalists();
+}
+let flashTimer = null;
+function flash(msg) {
+  $('toast').textContent = msg;
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => { $('toast').textContent = ''; }, 2600);
+}
+function renderFinalists() {
+  const s = stars(), ul = $('flist');
+  ul.innerHTML = '';
+  cmpSel = cmpSel.filter(id => s.includes(id));
+  $('fin-note').textContent = s.length
+    ? `${s.length} of ${MAXSTARS} starred. Tick 2 or 3 to compare them side by side.`
+    : 'Tap the star next to a place in your top 10, or on any map pin’s details, to add it here. Star up to 5.';
+  s.forEach(id => {
+    const r = byId(id);
+    const cb = el('input', { type: 'checkbox', 'aria-label': 'Include ' + r.d.name + ' in the comparison' });
+    cb.checked = cmpSel.includes(id);
+    cb.disabled = !cb.checked && cmpSel.length >= 3;
+    cb.addEventListener('change', () => {
+      if (cb.checked) cmpSel.push(id); else cmpSel = cmpSel.filter(x => x !== id);
+      renderFinalists();
+    });
+    const open = el('button', { class: 'linkish', type: 'button', text: 'Details' });
+    open.addEventListener('click', () => openSheet(r, weights()));
+    ul.appendChild(el('li', {}, [el('label', {}, [cb, el('span', { class: 'nm', text: r.d.name })]), pill(r), open, starBtn(id, r.d.name)]));
+  });
+  $('flist').hidden = !s.length;
+  $('fin-actions').hidden = !s.length;
+  $('compare-btn').disabled = cmpSel.length < 2;
+  $('compare-btn').textContent = cmpSel.length >= 2 ? `Compare ${cmpSel.length} side by side` : 'Compare (tick 2 or 3)';
+}
+
+/* Compare */
+function renderCompare() {
+  const rs = cmpSel.map(byId).filter(Boolean);
+  const g = $('cmp');
+  g.innerHTML = '';
+  g.style.gridTemplateColumns = `repeat(${rs.length}, minmax(11.5rem, 1fr))`;
+  const sec = (t) => g.appendChild(el('div', { class: 'sec', text: t }));
+  const lab = (t) => g.appendChild(el('div', { class: 'lab', text: t }));
+  const cells = (fn, hi) => rs.forEach((r, i) => {
+    const c = el('div', { class: 'cell c' + i + (hi && hi(r) ? ' best-of' : '') });
+    const v = fn(r);
+    if (typeof v === 'string') c.textContent = v; else if (v) c.appendChild(v);
+    g.appendChild(c);
+  });
+  const listOf = (id, types) => {
+    const items = calItems(id).filter(x => types.includes(x.t)).sort(byDate);
+    if (!items.length) return '—';
+    return el('ul', {}, items.map(x => el('li', {}, [
+      el('b', { text: whenText(x) + ' ' }), txt(x.label + (x.why ? ': ' + x.why : '')), x.est ? el('span', { class: 'est', text: 'est.' }) : null
+    ])));
+  };
+  cells(r => el('div', {}, [el('div', { class: 'nm', text: r.d.name }), pill(r), el('p', { style: 'margin:8px 0 0;color:var(--muted)', text: r.d.vibe })]));
+  sec('Scores (1–5)');
+  CATS.forEach(c => {
+    lab(c.label);
+    const vals = rs.map(r => r.d[c.k]), top = Math.max(...vals), allSame = vals.every(v => v === top);
+    cells(r => el('div', { class: 'score', style: 'grid-template-columns:minmax(0,1fr) 1.5rem' }, [pips(r.d[c.k], c.color), el('span', { class: 'v', text: String(r.d[c.k]) })]),
+      r => !allSame && r.d[c.k] === top);
+  });
+  sec('Getting there');
+  lab('From Kansas City'); cells(r => r.d.kc);
+  lab('From San Antonio'); cells(r => r.d.sa);
+  sec('Fall weather');
+  lab('High / low · rainy days');
+  cells(r => {
+    const x = (FALL[r.d.id] || {}).wx;
+    if (!x) return 'Typical high ' + r.d.hi + '°F';
+    return el('ul', { style: 'list-style:none;padding:0' }, [['Sep', 'sep'], ['Oct', 'oct'], ['Nov', 'nov']].map(([m, k]) =>
+      el('li', {}, [el('b', { text: m + ' ' }), txt(`${x[k][0]}° / ${x[k][1]}° · ${x[k][2]} rainy days`)])));
+  });
+  lab('Hurricane risk');
+  cells(r => { const f = FALL[r.d.id]; return f && f.hur ? el('span', { class: 'hur ' + f.hur, text: HUR[f.hur].replace('Hurricane risk: ', '') }) : '—'; });
+  sec('Fall 2027 calendar');
+  g.appendChild(el('div', { class: 'lab cal-legend' }, [calKey()]));
+  cells(r => calStrip(r.d.id, {}));
+  lab('Best weeks'); cells(r => listOf(r.d.id, ['best']));
+  lab('K-State game'); cells(r => listOf(r.d.id, ['gm']));
+  lab('Events'); cells(r => listOf(r.d.id, ['ev']));
+  lab('Pricey weekends to avoid or book early'); cells(r => listOf(r.d.id, ['pricey']));
+  sec('Watch out'); cells(r => r.d.wo);
+}
+
+/* Print one-pager */
+function printPlaces(rs, title) {
+  const w = weights();
+  const p = $('print');
+  p.innerHTML = '';
+  const nm = (state.name || '').trim();
+  p.appendChild(el('div', { class: 'pr-head' }, [
+    el('h1', { text: title }),
+    el('p', { text: (nm ? nm + '’s picks · ' : '') + 'Fall 2027 guys trip · printed ' + new Date().toLocaleDateString() })
+  ]));
+  p.appendChild(el('div', { class: 'pr-pri' }, [txt('Priorities:')].concat(CATS.slice().sort((a, b) => w[b.k] - w[a.k]).map(c =>
+    el('span', {}, [el('b', { text: Math.round(w[c.k] * 100) + '%' }), txt(' ' + c.label)])))));
+  rs.forEach(r => {
+    const d = r.d, f = FALL[d.id] || {};
+    const rows = [['From KC', d.kc], ['From SA', d.sa], ['Weather', wxShort(d) + (f.hur === 'high' ? ' · hurricane risk: high' : '')], ['Watch out', d.wo]];
+    p.appendChild(el('div', { class: 'pr-item' }, [
+      el('div', { class: 'num', text: String(r.rank) }),
+      el('div', {}, [
+        el('h2', {}, [txt(d.name), el('span', { class: 'pill g' + r.band, text: r.grade }), el('small', { style: 'font:400 10px var(--font-body);color:var(--muted);text-transform:none', text: r.match + '% match' })]),
+        el('p', { class: 'vibe', text: d.vibe + '. ' + whyLine(r, w) }),
+        el('dl', {}, rows.flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { text: v })]))
+      ]),
+      calStrip(d.id, { list: true, max: 4, short: true })
+    ]));
+  });
+  p.appendChild(el('p', { class: 'pr-foot', text: 'Numbers are overall ranks. Calendar: green = best weeks, hatched orange = pricey (book early), blue dot = event, purple diamond = K-State game. “Est.” dates are projected from past years. Flights as of late 2026; recheck before booking.' }));
+  window.print();
+}
+
+/* Copy for the group chat */
+function finalistsText() {
+  const nm = (state.name || '').trim();
+  const lines = ['Wildcats fall 2027 trip finalists' + (nm ? ` (${nm}’s picks)` : '')];
+  stars().map(byId).forEach((r, i) => {
+    const best = calItems(r.d.id).filter(x => x.t === 'best' && x.s).map(x => fmtRange(x.s, x.e)).join(', ') || r.d.win;
+    lines.push('', `${i + 1}. ${r.d.name}: ${r.grade} (${r.match}% match). ${r.d.vibe}.`,
+      `Best: ${best}`, `From KC: ${r.d.kc}`, `From SA: ${r.d.sa}`, `Weather: ${wxShort(r.d)}`);
+  });
+  return lines.join('\n');
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); return true; } catch (e) {}
+  const ta = el('textarea', { style: 'position:fixed;opacity:0' });
+  ta.value = t;
+  document.body.appendChild(ta);
+  ta.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) {}
+  ta.remove();
+  return ok;
+}
+
+/* Quiz */
+function renderQuestion() {
+  const q = QUESTIONS[qi];
+  $('q-count').textContent = `Question ${qi + 1} of ${QUESTIONS.length}`;
+  $('q-title').textContent = q.q;
+  $('opt-a-label').textContent = q.a[0];
+  $('opt-b-label').textContent = q.b[0];
+  $('opt-a').classList.toggle('picked', state.answers[qi] === 'a');
+  $('opt-b').classList.toggle('picked', state.answers[qi] === 'b');
+  const t = $('q-track');
+  t.innerHTML = '';
+  QUESTIONS.forEach((_, i) => t.appendChild(el('i', i <= qi ? { class: 'on' } : {})));
+  $('back-btn').textContent = qi === 0 ? 'Back to start' : 'Back';
+}
+function advance() {
+  if (qi < QUESTIONS.length - 1) { qi++; renderQuestion(); }
+  else { state.tune = null; store.set(state); renderResults(); show('results'); }
+}
+function pick(which) {
+  state.answers[qi] = which;
+  $(which === 'a' ? 'opt-a' : 'opt-b').classList.add('picked');
+  setTimeout(advance, 160);
+}
+
+/* Results */
+function renderWeights(w) {
+  const bar = $('wbar'), leg = $('wlegend');
+  bar.innerHTML = ''; leg.innerHTML = '';
+  CATS.slice().sort((a, b) => w[b.k] - w[a.k]).forEach(c => {
+    bar.appendChild(el('span', { style: `width:${(w[c.k] * 100).toFixed(1)}%;background:${c.color}` }));
+    leg.appendChild(el('span', {}, [el('span', { class: 'sw', style: 'background:' + c.color }), el('b', { text: Math.round(w[c.k] * 100) + '%' }), document.createTextNode(' ' + c.label)]));
+  });
+}
+function renderSliders() {
+  const box = $('sliders');
+  const r = state.tune || rawWeights();
+  box.innerHTML = '';
+  const total = CATS.reduce((t, c) => t + Number(r[c.k]), 0) || 1;
+  CATS.forEach(c => {
+    const id = 'tune-' + c.k;
+    const input = el('input', { type: 'range', id, min: '0', max: '24', step: '1', value: String(r[c.k]) });
+    const out = el('output', { for: id, text: Math.round(r[c.k] / total * 100) + '%' });
+    input.addEventListener('input', () => {
+      const cur = Object.assign({}, state.tune || rawWeights());
+      cur[c.k] = Number(input.value);
+      state.tune = cur;
+      store.set(state);
+      update(false);
+    });
+    box.appendChild(el('div', { class: 'slider' }, [
+      el('label', { for: id }, [el('span', { class: 'sw', style: 'background:' + c.color }), document.createTextNode(c.label)]),
+      input, out
+    ]));
+  });
+}
+function refreshSliderOutputs() {
+  const r = state.tune || rawWeights();
+  const total = CATS.reduce((t, c) => t + Number(r[c.k]), 0) || 1;
+  CATS.forEach(c => {
+    const out = document.querySelector(`output[for="tune-${c.k}"]`);
+    if (out) out.textContent = Math.round(r[c.k] / total * 100) + '%';
+  });
+}
+
+const SVGNS = 'http://www.w3.org/2000/svg';
+function svg(tag, attrs) {
+  const e = document.createElementNS(SVGNS, tag);
+  Object.keys(attrs || {}).forEach(k => e.setAttribute(k, attrs[k]));
+  return e;
+}
+let selected = null;
+function renderMap(w) {
+  const g = $('dots');
+  g.innerHTML = '';
+  const order = scored.slice().sort((a, b) => a.match - b.match);
+  order.forEach(r => {
+    const [x, y] = PTS[r.d.id];
+    const rad = 8 + Math.max(0, r.match - 40) / 60 * 12;
+    const grp = svg('g', {});
+    const dot = svg('circle', { cx: x, cy: y, r: rad.toFixed(1), class: 'dot g' + r.band + (selected === r.d.id ? ' sel' : '') });
+    grp.appendChild(dot);
+    if (r.rank <= 10) {
+      const t = svg('text', { x, y: y + 0.5, class: 'rank ' + (r.band === 'a' || r.band === 'b' ? 'ta' : 'tc'), 'font-size': Math.max(13, rad * 1.05).toFixed(1) });
+      t.textContent = r.rank;
+      grp.appendChild(t);
+    }
+    const hit = svg('circle', { cx: x, cy: y, r: Math.max(20, rad + 6), class: 'dot-hit', tabindex: '0', role: 'button', 'aria-label': `${r.d.name}, grade ${r.grade}, ${r.match}% match` });
+    hit.addEventListener('pointerenter', (ev) => { if (ev.pointerType === 'mouse') showTip(r, x, y, w); });
+    hit.addEventListener('pointerleave', (ev) => { if (ev.pointerType === 'mouse') hideTip(); });
+    hit.addEventListener('focus', () => showTip(r, x, y, w));
+    hit.addEventListener('blur', hideTip);
+    hit.addEventListener('click', () => { hideTip(); openSheet(r, w); });
+    hit.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); hideTip(); openSheet(r, w); } });
+    grp.appendChild(hit);
+    g.appendChild(grp);
+  });
+}
+function renderHomes() {
+  const g = $('homes');
+  g.innerHTML = '';
+  [['home_kc', 'KC', 1], ['home_sa', 'SA', 1]].forEach(([k, lab]) => {
+    const [x, y] = PTS[k];
+    const grp = svg('g', { class: 'home', 'aria-hidden': 'true' });
+    grp.appendChild(svg('path', { d: `M${x} ${y - 9} L${x + 9} ${y} L${x} ${y + 9} L${x - 9} ${y}Z` }));
+    const t = svg('text', k === 'home_sa' ? { x: x - 13, y: y + 6, 'text-anchor': 'end' } : { x: x + 13, y: y + 6 });
+    t.textContent = lab;
+    grp.appendChild(t);
+    g.appendChild(grp);
+  });
+}
+function showTip(r, x, y, w) {
+  const tip = $('tip'), wrap = $('mapwrap'), svgEl = $('map');
+  tip.innerHTML = '';
+  tip.appendChild(cardFor(r, w));
+  tip.hidden = false;
+  const sx = svgEl.clientWidth / 975, sy = svgEl.clientHeight / 632;
+  const px = x * sx, py = y * sy;
+  const tw = tip.offsetWidth, th = tip.offsetHeight, W = wrap.clientWidth;
+  let left = px + 16;
+  if (left + tw > W) left = px - tw - 16;
+  left = Math.max(0, Math.min(left, W - tw));
+  let top = py - th / 2;
+  top = Math.max(-40, top);
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+}
+function hideTip() { $('tip').hidden = true; }
+let lastFocus = null;
+function openSheet(r, w) {
+  lastFocus = document.activeElement;
+  selected = r.d.id;
+  document.querySelectorAll('#dots .dot').forEach(c => c.classList.remove('sel'));
+  renderMap(w);
+  const body = $('sheet-body');
+  body.innerHTML = '';
+  body.appendChild(cardFor(r, w, 'sheet-title', true));
+  $('scrim').hidden = false;
+  $('sheet').hidden = false;
+  $('sheet').scrollTop = 0;
+  $('sheet-close').focus();
+}
+function closeSheet() {
+  $('scrim').hidden = true;
+  $('sheet').hidden = true;
+  selected = null;
+  renderMap(weights());
+  if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) {} }
+}
+function renderTop10(w) {
+  const ol = $('top10');
+  ol.innerHTML = '';
+  scored.slice(0, 10).forEach(r => {
+    const blocks = el('div', { class: 'blocks', 'aria-hidden': 'true' }, CATS.map((c, i) =>
+      el('span', { style: `width:${r.parts[i].toFixed(1)}%;background:${c.color}` })));
+    const nameKids = [document.createTextNode(r.d.name)];
+    if (r.d.ks) nameKids.push(el('span', { class: 'badge', text: 'K-State game' }));
+    const btn = el('button', { class: 'item', type: 'button', 'aria-label': `${r.rank}. ${r.d.name}, grade ${r.grade}, ${r.match}% match. Show details` }, [
+      el('span', { class: 'num', text: String(r.rank) }),
+      el('span', { class: 'nm' }, nameKids),
+      pill(r),
+      blocks
+    ]);
+    btn.addEventListener('click', () => openSheet(r, w));
+    ol.appendChild(el('li', {}, [btn, starBtn(r.d.id, r.d.name)]));
+  });
+}
+function update(resetSliders) {
+  const w = score();
+  const nm = (state.name || '').trim();
+  const title = $('res-title');
+  title.innerHTML = '';
+  if (nm) { title.appendChild(el('span', { text: nm + '’s' })); title.appendChild(document.createTextNode(' trip board')); }
+  else title.textContent = 'Your trip board';
+  renderWeights(w);
+  if (resetSliders) renderSliders(); else refreshSliderOutputs();
+  renderMap(w);
+  renderTop10(w);
+  renderFinalists();
+  $('skipped-note').hidden = QUESTIONS.every((_, i) => state.answers[i]);
+}
+function renderResults() { update(true); renderHomes(); }
+
+/* Wiring */
+$('start-btn').addEventListener('click', () => {
+  state.name = $('name-input').value.trim();
+  state.answers = []; state.tune = null; qi = 0;
+  renderQuestion(); show('quiz');
+});
+$('see-btn').addEventListener('click', () => { renderResults(); show('results'); });
+// Skipped questions are stored as null and add nothing, so those priorities stay even
+$('skip-quiz-btn').addEventListener('click', () => {
+  state.name = $('name-input').value.trim();
+  state.answers = QUESTIONS.map(() => null); state.tune = null; qi = 0;
+  store.set(state);
+  renderResults(); show('results');
+  $('tune').open = true;
+});
+$('skip-q-btn').addEventListener('click', () => { state.answers[qi] = null; advance(); });
+$('print-top-btn').addEventListener('click', () => printPlaces(scored.slice(0, 5), 'Top 5 trips'));
+$('print-fin-btn').addEventListener('click', () => printPlaces(stars().map(byId).sort((a, b) => a.rank - b.rank), 'Our finalists'));
+$('compare-btn').addEventListener('click', () => { if (cmpSel.length < 2) return; renderCompare(); show('compare'); });
+$('cmp-back').addEventListener('click', () => show('results'));
+$('copy-btn').addEventListener('click', async () => {
+  flash(await copyText(finalistsText()) ? 'Copied. Paste it into the group chat.' : 'Couldn’t copy. Try Print / save PDF instead.');
+});
+$('opt-a').addEventListener('click', () => pick('a'));
+$('opt-b').addEventListener('click', () => pick('b'));
+$('back-btn').addEventListener('click', () => {
+  if (qi === 0) { show('welcome'); return; }
+  qi--; renderQuestion();
+});
+$('retake-btn').addEventListener('click', () => {
+  $('name-input').value = state.name || '';
+  show('welcome');
+});
+// Start over: wipes name, answers, tuning and saved results (theme choice is kept).
+$('reset-btn').addEventListener('click', () => {
+  if (store.get() && !confirm('Start over? This clears your answers and saved results.')) return;
+  if (!$('sheet').hidden) closeSheet();
+  hideTip();
+  state = { name: '', answers: [], tune: null, stars: [] }; qi = 0; cmpSel = [];
+  try { localStorage.removeItem('tripfinder'); } catch (e) {}
+  $('name-input').value = '';
+  $('see-btn').hidden = true;
+  $('tune').open = false;
+  show('welcome');
+});
+$('reset-tune').addEventListener('click', () => { state.tune = null; store.set(state); update(true); });
+$('sheet-close').addEventListener('click', closeSheet);
+$('scrim').addEventListener('click', closeSheet);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('sheet').hidden) closeSheet(); });
+window.addEventListener('resize', hideTip);
+
+// Theme: cycles Auto (follow system) -> Light -> Dark; remembered per browser.
+const THEMES = {
+  auto: { label: 'Auto', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor"/>' },
+  light: { label: 'Light', icon: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>' },
+  dark: { label: 'Dark', icon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>' }
+};
+function applyTheme(t) {
+  if (t === 'auto') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = t;
+  $('theme-btn').innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + THEMES[t].icon + '</svg>' + THEMES[t].label;
+  $('theme-btn').setAttribute('aria-label', 'Theme: ' + THEMES[t].label + '. Click to change.');
+}
+let theme = document.documentElement.dataset.theme || 'auto';
+applyTheme(theme);
+$('theme-btn').addEventListener('click', () => {
+  theme = { auto: 'light', light: 'dark', dark: 'auto' }[theme];
+  applyTheme(theme);
+  try { if (theme === 'auto') localStorage.removeItem('tripfinder-theme'); else localStorage.setItem('tripfinder-theme', theme); } catch (e) {}
+});
+
+const saved = store.get();
+if (saved && Array.isArray(saved.answers) && saved.answers.length === QUESTIONS.length) {
+  state = Object.assign({ name: '', answers: [], tune: null, stars: [] }, saved);
+  cmpSel = stars().slice(0, 3);
+  $('name-input').value = state.name || '';
+  $('see-btn').hidden = false;
+  $('reset-btn').hidden = false;
+}
+</script>
+
+</body></html>
