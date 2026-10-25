@@ -1,4 +1,4 @@
-# Wildcats Trip Finder: Feature Ideas
+# Purple Passport: Feature Ideas
 
 A running list of features to consider. Effort is a rough guess: **S** = an hour or two, **M** = an afternoon, **L** = a day or more.
 
@@ -22,7 +22,7 @@ No server needed; works on GitHub Pages.
 - [ ] **Group size input** so cost and lodging math match the real headcount (S)
 - [ ] **Lodging type:** "good for a house rental" vs. "mostly hotels," with a rough nightly rate (M, research)
 - [ ] **Pick-a-weekend poll:** once a place is chosen, everyone marks which Sept–Nov weekends work, shown over that place's fall calendar (M, uses share links)
-- [ ] **Booking shortcuts:** prefilled Google Flights searches from MCI and SAT for the chosen dates, plus Airbnb/VRBO searches for the group size (S)
+- [x] **Booking shortcuts:** prefilled Google Flights searches from MCI and SAT for the chosen dates, plus Airbnb/VRBO searches for the group size (S)
 - [ ] **Fairness check:** flag places where one home airport gets a nonstop and the other a long connection (S)
 - [ ] **Drive-from-KC filter:** Lincoln, St. Louis, Ozarks and others where a car beats flying (S)
 
@@ -39,7 +39,7 @@ No server needed; works on GitHub Pages.
 
 - [x] Skip the whole quiz or a single question
 - [ ] Show which answer pushed each priority, e.g. "Weather +2 from 'Guaranteed warm weather'" (S)
-- [ ] A "both are fine" middle answer on each question (S)
+- [x] A "both are fine" middle answer on each question (S)
 - [ ] Optional dealbreakers: "no connections," "no hurricane risk," "under X hours from KC" (M)
 
 ## Data and research
@@ -55,8 +55,8 @@ No server needed; works on GitHub Pages.
 
 ## Polish
 
-- [ ] Rename to `index.html` for GitHub Pages (S)
-- [ ] App icon and link preview (title, description, image) so shared links look good in the group chat (S)
+- [x] Rename to `index.html` for GitHub Pages (S)
+- [x] App icon and link preview (title, description, image) so shared links look good in the group chat (S)
 - [ ] Works offline once opened (installable on a phone home screen) (M)
 - [ ] Keyboard and screen-reader check of the map, stars and compare table (S)
 - [ ] Trip countdown once dates are picked (S)
